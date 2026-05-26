@@ -12,27 +12,40 @@ import { env } from "./env";
 
 export const app = express();
 const openApiDocument = generateOpenApiDocument(serverRouter, {
-  title: "Streamyst OpenAPI",
+  title: "FlowForm OpenAPI",
   version: "1.0.0",
   baseUrl: env.BASE_URL.concat("/api"),
 });
 
-if (env.NODE_ENV !== "prod") {
-  app.use(
-    cors({
-      origin: "*",
-    }),
-  );
-}
+const allowedOrigins = new Set([
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  env.WEB_APP_URL.replace(/\/$/, ""),
+]);
+const isProduction = env.NODE_ENV === "prod" || env.NODE_ENV === "production";
 
-app.use(express.json());
+app.use(
+  cors({
+    credentials: true,
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.has(origin) || !isProduction) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`Origin ${origin} is not allowed by FlowForm CORS`));
+    },
+  }),
+);
+
+app.use(express.json({ strict: false }));
 
 app.get("/", (req, res) => {
-  return res.json({ message: "Streamyst is up and running..." });
+  return res.json({ message: "FlowForm API is up and running..." });
 });
 
 app.get("/health", (req, res) => {
-  return res.json({ message: "Streamyst server is healthy", healthy: true });
+  return res.json({ message: "FlowForm API is healthy", healthy: true });
 });
 
 logger.debug(`openapi.json: ${env.BASE_URL}/openapi.json`);
