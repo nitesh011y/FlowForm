@@ -53,6 +53,7 @@ import {
 } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
 import { trpc } from "~/trpc/client";
+import { SiteNav } from "~/components/forms/site-nav";
 
 const formTemplates = [
   {
@@ -238,63 +239,7 @@ export function DashboardClient() {
       </div>
 
       <div className="relative z-10">
-        <header className="sticky top-0 z-40 border-b-3 border-black bg-zinc-950/90 shadow-[0_4px_0_#18181b] backdrop-blur-md">
-          <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-            <div className="flex items-center gap-3 group">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-zinc-200 text-zinc-950 border-2 border-black font-sans text-lg font-black shadow-[3px_3px_0px_#000] -rotate-3 transition-transform group-hover:scale-105 group-hover:rotate-0">
-                <span className="font-flow-display leading-none">F</span>
-              </div>
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-zinc-500">
-                  Creator Dashboard
-                </p>
-                <h1 className="font-flow-display text-xl tracking-tight text-white">
-                  FlowForm
-                </h1>
-              </div>
-            </div>
-
-            <nav aria-label="Dashboard navigation" className="flex flex-wrap items-center gap-1 rounded-lg border-2 border-black bg-zinc-900/50 p-1 text-xs font-bold uppercase tracking-wider">
-              <Link className="rounded px-3 py-1.5 text-zinc-400 hover:text-white transition-all" href="/">
-                Home
-              </Link>
-              <Link className="rounded px-3 py-1.5 text-zinc-400 hover:text-white transition-all" href="/explore">
-                Explore
-              </Link>
-              <Link className="rounded px-3 py-1.5 text-zinc-400 hover:text-white transition-all" href="/pricing">
-                Pricing
-              </Link>
-              <Link aria-current="page" className="rounded bg-zinc-200 text-zinc-950 border border-black shadow-[2px_2px_0px_#000] px-3 py-1.5 font-black" href="/dashboard">
-                Dashboard
-              </Link>
-            </nav>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge className="rounded border-2 border-black bg-zinc-200 text-zinc-950 shadow-[2px_2px_0_#000] font-black uppercase text-[10px]" variant="outline">
-                <ShieldCheck className="mr-1 size-3" />
-                Signed in
-              </Badge>
-              <span className="flex max-w-[245px] items-center gap-2 truncate text-xs text-zinc-400 uppercase font-semibold tracking-wider">
-                <Mail className="size-3 shrink-0 text-zinc-400" />
-                <span className="truncate">{me.data.email}</span>
-              </span>
-              <Button
-                className="h-9 rounded-lg border-2 border-black bg-zinc-900 text-xs font-bold uppercase tracking-wider text-zinc-350 shadow-[3px_3px_0px_#000] hover:bg-zinc-800 hover:text-white"
-                disabled={logout.isPending}
-                onClick={() => void handleLogout()}
-                size="sm"
-                variant="outline"
-              >
-                {logout.isPending ? (
-                  <Loader2 className="mr-1 size-3 animate-spin" />
-                ) : (
-                  <LogOut className="mr-1 size-3" />
-                )}
-                Sign out
-              </Button>
-            </div>
-          </div>
-        </header>
+        <SiteNav active="dashboard" />
 
         <div className="mx-auto flex max-w-7xl flex-col gap-7 px-5 py-8 lg:px-8">
           <section className="flow-dashboard-rise flow-dashboard-hero flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">

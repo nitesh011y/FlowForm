@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import {
+  Loader2,
+  LogOut,
+  Mail,
+  ShieldCheck,
+} from "lucide-react";
 
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import { trpc } from "~/trpc/client";
 
 type NavKey = "home" | "explore" | "pricing" | "dashboard";
@@ -14,10 +22,21 @@ const navItems: Array<{ href: string; key: NavKey; label: string }> = [
 ];
 
 export function SiteNav({ active }: { active: NavKey }) {
+  const utils = trpc.useUtils();
   const { data: me, isLoading } = trpc.auth.me.useQuery(undefined);
+  const logout = trpc.auth.logout.useMutation();
+
+  async function handleLogout() {
+    await logout.mutateAsync(null);
+    utils.auth.me.setData(undefined, null);
+    utils.forms.list.setData(undefined, []);
+    await utils.auth.me.invalidate();
+    await utils.forms.list.invalidate();
+  }
+
   const secondaryLabel = isLoading ? "Checking" : "Sign in";
   const showSecondaryAction = isLoading || !me;
-  const primaryLabel = me ? "Create form" : "Start free";
+  const primaryLabel = me ? "Dashboard 🛠️" : "Start free";
 
   return (
     <header className="sticky top-0 z-50 border-b-3 border-black bg-zinc-950/90 shadow-[0_4px_0_#18181b] backdrop-blur-md">
@@ -54,20 +73,51 @@ export function SiteNav({ active }: { active: NavKey }) {
         </nav>
 
         <div className="flex shrink-0 items-center gap-3">
-          {showSecondaryAction ? (
-            <Link
-              className="hidden rounded-lg border-2 border-black bg-transparent px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-400 shadow-[3px_3px_0px_#000] hover:bg-zinc-900 hover:text-white transition-all hover:scale-105 active:scale-95 sm:inline-flex"
-              href="/dashboard"
-            >
-              {secondaryLabel}
-            </Link>
-          ) : null}
-          <Link
-            className="rounded-lg bg-zinc-200 text-zinc-950 px-5 py-2 text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_#000] border-2 border-black transition-all hover:bg-white hover:scale-105 active:scale-95 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]"
-            href="/dashboard"
-          >
-            {primaryLabel}
-          </Link>
+          {me ? (
+            <div className="flex items-center gap-3">
+              <div className="hidden items-center gap-2 lg:flex">
+                <Badge className="rounded border-2 border-black bg-zinc-200 text-zinc-950 shadow-[2px_2px_0_#000] font-black uppercase text-[10px]" variant="outline">
+                  <ShieldCheck className="mr-1 size-3" />
+                  Signed in
+                </Badge>
+                <span className="max-w-[180px] truncate text-xs text-zinc-450 uppercase font-semibold tracking-wider flex items-center gap-1.5">
+                  <Mail className="size-3 text-zinc-500" />
+                  <span className="truncate">{me.email}</span>
+                </span>
+              </div>
+              <Button
+                className="h-9 rounded-lg border-2 border-black bg-zinc-900 text-xs font-bold uppercase tracking-wider text-zinc-350 shadow-[3px_3px_0px_#000] hover:bg-zinc-850 hover:text-white"
+                disabled={logout.isPending}
+                onClick={() => void handleLogout()}
+                size="sm"
+                variant="outline"
+              >
+                {logout.isPending ? (
+                  <Loader2 className="mr-1 size-3 animate-spin" />
+                ) : (
+                  <LogOut className="mr-1 size-3" />
+                )}
+                Sign out
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              {showSecondaryAction ? (
+                <Link
+                  className="hidden rounded-lg border-2 border-black bg-transparent px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-405 shadow-[3px_3px_0px_#000] hover:bg-zinc-900 hover:text-white transition-all hover:scale-105 active:scale-95 sm:inline-flex"
+                  href="/dashboard"
+                >
+                  {secondaryLabel}
+                </Link>
+              ) : null}
+              <Link
+                className="rounded-lg bg-zinc-200 text-zinc-950 px-5 py-2 text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_#000] border-2 border-black transition-all hover:bg-white hover:scale-105 active:scale-95"
+                href="/dashboard"
+              >
+                {primaryLabel}
+              </Link>
+            </div>
+          )}
         </div>
       </div>
       <nav

@@ -64,7 +64,7 @@ const tiers = [
     price: "0",
     note: "free",
     cta: "Claim free",
-    href: "/dashboard",
+    href: "/dashboard?plan=starter",
     perks: ["100 responses / month", "Basic share links", "Public gallery listing"],
   },
   {
@@ -72,7 +72,7 @@ const tiers = [
     price: "49",
     note: "/ month",
     cta: "Deploy growth",
-    href: "/pricing",
+    href: "/dashboard?plan=growth",
     featured: true,
     perks: ["10,000 responses / month", "Unlisted campaigns", "Advanced analytics"],
   },
@@ -81,7 +81,7 @@ const tiers = [
     price: "199",
     note: "/ month",
     cta: "Upgrade now",
-    href: "/pricing",
+    href: "/dashboard?plan=enterprise",
     perks: ["Unlimited forms", "CSV exports", "Priority support"],
   },
 ];
@@ -520,12 +520,14 @@ export default function Home() {
 
         <div className="mt-16 grid items-stretch gap-8 lg:grid-cols-3 max-w-4xl mx-auto">
           {tiers.map((tier) => (
-            <article
-              className={`relative rounded-xl border-2 bg-zinc-900/40 p-8 text-center flex flex-col justify-between transition-all duration-300 hover:scale-102 hover:-rotate-1 ${
+            <Link
+              aria-label={`Select ${tier.label}`}
+              className={`group relative rounded-xl border-2 bg-zinc-900/40 p-8 text-center flex flex-col justify-between transition-all duration-300 hover:scale-102 hover:-rotate-1 active:scale-[0.99] cursor-pointer ${
                 tier.featured
                   ? "border-black bg-zinc-900 shadow-[8px_8px_0px_#000] scale-[1.02]"
                   : "border-black shadow-[6px_6px_0px_#18181b]"
               }`}
+              href={tier.href}
               key={tier.label}
             >
               {tier.featured ? (
@@ -552,17 +554,16 @@ export default function Home() {
                 </ul>
               </div>
               
-              <Link
+              <span
                 className={`mt-8 inline-flex h-11 w-full items-center justify-center rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-200 border-2 border-black ${
                   tier.featured
-                    ? "bg-zinc-200 text-zinc-950 shadow-[3px_3px_0px_#000] hover:bg-white"
-                    : "bg-zinc-950 text-zinc-300 shadow-[3px_3px_0px_#000] hover:bg-zinc-900"
+                    ? "bg-zinc-200 text-zinc-950 shadow-[3px_3px_0px_#000] group-hover:bg-white"
+                    : "bg-zinc-950 text-zinc-300 shadow-[3px_3px_0px_#000] group-hover:bg-zinc-900"
                 }`}
-                href={tier.href}
               >
                 {tier.cta}
-              </Link>
-            </article>
+              </span>
+            </Link>
           ))}
         </div>
       </section>

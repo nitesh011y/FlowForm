@@ -470,10 +470,10 @@ export function BuilderClient({ formId }: { formId: string }) {
 
   if (formQuery.isLoading) {
     return (
-      <main className="theme-flowform-kingdom flex min-h-screen items-center justify-center bg-[#190704] text-[#fff8d7]">
-        <div className="flex items-center border-4 border-[#f7df00] bg-[#2a100c] px-6 py-5 shadow-[8px_8px_0_#100402]">
-          <Loader2 className="mr-3 size-5 animate-spin text-[#f7df00]" />
-          <span className="font-flow-display text-2xl tracking-wider">Loading builder</span>
+      <main className="theme-flowform-kingdom flex min-h-screen items-center justify-center text-zinc-200">
+        <div className="flex items-center rounded-xl border-2 border-black bg-zinc-950 px-6 py-5 shadow-[5px_5px_0px_#000]">
+          <Loader2 className="mr-3 size-5 animate-spin text-zinc-300" />
+          <span className="font-flow-display text-lg tracking-wide text-zinc-100">Loading Builder...</span>
         </div>
       </main>
     );
@@ -481,9 +481,9 @@ export function BuilderClient({ formId }: { formId: string }) {
 
   if (formQuery.isError) {
     return (
-      <main className="theme-flowform-kingdom flex min-h-screen flex-col items-center justify-center gap-4 bg-[#190704] px-5 text-center text-[#fff8d7]">
-        <p className="font-flow-display text-5xl text-[#f7df00]">Sign in to open this builder</p>
-        <Button asChild className="rounded-lg border border-[#72f09a] bg-[#20c968] font-black uppercase tracking-widest text-[#06180c] hover:bg-[#32df7c]">
+      <main className="theme-flowform-kingdom flex min-h-screen flex-col items-center justify-center gap-4 px-5 text-center text-zinc-200">
+        <p className="font-flow-display text-3xl text-white">Sign in to open this builder</p>
+        <Button asChild className="rounded-lg bg-zinc-200 text-zinc-950 border-2 border-black font-black uppercase tracking-wider text-xs shadow-[4px_4px_0px_#000] hover:bg-white active:scale-95 transition-all hover:scale-[1.02] hover:-rotate-1">
           <Link href="/dashboard">Go to dashboard</Link>
         </Button>
       </main>
@@ -492,8 +492,8 @@ export function BuilderClient({ formId }: { formId: string }) {
 
   if (!formQuery.data) {
     return (
-      <main className="theme-flowform-kingdom flex min-h-screen items-center justify-center bg-[#190704] text-[#fff8d7]">
-        <p className="border-4 border-[#f7df00] bg-[#2a100c] px-6 py-5 font-flow-display text-4xl text-[#f7df00]">
+      <main className="theme-flowform-kingdom flex min-h-screen items-center justify-center text-zinc-200">
+        <p className="rounded-xl border-2 border-black bg-zinc-950 px-6 py-4 font-flow-display text-lg text-zinc-100 shadow-[5px_5px_0px_#000]">
           Form not found
         </p>
       </main>
@@ -518,17 +518,17 @@ export function BuilderClient({ formId }: { formId: string }) {
   );
 
   return (
-    <main className="theme-flowform-kingdom min-h-screen overflow-hidden bg-[#190704] text-[#fff8d7] selection:bg-[#f7df00] selection:text-[#190704]">
-      <header className="sticky top-0 z-50 border-b-4 border-[#5a2a22] bg-[#2a100c]/95 backdrop-blur-xl">
-        <div className="flex min-h-20 items-center justify-between gap-3 px-3 sm:px-5">
+    <main className="theme-flowform-kingdom min-h-screen overflow-hidden text-zinc-200 selection:bg-zinc-800 selection:text-white">
+      <header className="sticky top-0 z-50 border-b-2 border-black bg-zinc-950/80 backdrop-blur-md shadow-[3px_3px_0px_#000]">
+        <div className="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-4 xl:gap-6">
-            <Link className="font-flow-display text-4xl leading-none text-[#f7df00] drop-shadow-[3px_3px_0_#000] sm:text-5xl xl:text-6xl" href="/dashboard">
+            <Link className="font-flow-display text-2xl font-black uppercase tracking-tight text-white drop-shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all inline-block" href="/dashboard">
               FlowForm
             </Link>
-            <span className="hidden h-12 w-px bg-[#6f4939] md:block" />
+            <span className="hidden h-12 w-0.5 bg-zinc-800 md:block" />
             <div className="hidden min-w-0 md:block">
-              <p className="truncate text-3xl font-black text-[#fff7df]">{title || "Untitled form"}</p>
-              <div className="mt-1 flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[#bfa48c]">
+              <p className="truncate text-lg font-black text-white">{title || "Untitled form"}</p>
+              <div className="mt-1 flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-zinc-400">
                 <span>{status}</span>
                 <span>/</span>
                 <span>{visibility}</span>
@@ -536,26 +536,26 @@ export function BuilderClient({ formId }: { formId: string }) {
             </div>
           </div>
 
-          <nav aria-label="Builder navigation" className="hidden items-center gap-2 rounded-md border border-[#5a2a22] bg-[#190704]/55 p-1 text-xs font-black uppercase tracking-[0.16em] text-[#d8c2af] lg:flex">
-            <Link className="rounded px-4 py-2 transition hover:bg-[#351711] hover:text-[#f7df00]" href="/dashboard">
+          <nav aria-label="Builder navigation" className="hidden items-center gap-1.5 rounded-full border-2 border-black bg-zinc-950 p-1.5 text-xs font-black uppercase tracking-wider lg:flex shadow-[2px_2px_0px_#000]">
+            <Link className="rounded-full px-3.5 py-1.5 text-zinc-400 hover:text-zinc-100 hover:scale-105 active:scale-95 transition-all" href="/dashboard">
               Dashboard
             </Link>
-            <span aria-current="page" className="rounded bg-[#f7df00] px-4 py-2 text-[#2a100c] shadow-[0_3px_0_#8a7200]">
+            <span aria-current="page" className="rounded-full bg-zinc-200 text-zinc-950 border-2 border-black shadow-[1.5px_1.5px_0px_#000] px-3.5 py-1 font-black">
               Builder
             </span>
             <Dialog>
               <DialogTrigger asChild>
-                <button className="rounded px-4 py-2 transition hover:bg-[#351711] hover:text-[#f7df00]" type="button">
+                <button className="rounded-full px-3.5 py-1.5 text-zinc-400 hover:text-zinc-100 hover:scale-105 active:scale-95 transition-all" type="button">
                   Design
                 </button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl rounded-none border-4 border-[#6f4939] bg-[#2a100c] text-[#fff8d7] shadow-[10px_10px_0_#100402]">
+              <DialogContent className="max-w-2xl rounded-xl border-2 border-black bg-zinc-950 text-zinc-250 shadow-[8px_8px_0px_#000]">
                 <DialogHeader>
-                  <DialogTitle className="font-flow-display text-5xl text-[#f7df00]">
-                    Design the Realm
+                  <DialogTitle className="font-flow-display text-3xl text-white drop-shadow-[2px_2px_0px_#000]">
+                    Design Form Runner
                   </DialogTitle>
-                  <DialogDescription className="text-[#cdb49d]">
-                    Choose a public form preset and tune the colors saved with this form.
+                  <DialogDescription className="text-xs text-zinc-400 uppercase font-bold tracking-wider">
+                    Choose an interactive theme preset and customize color configurations.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -565,30 +565,30 @@ export function BuilderClient({ formId }: { formId: string }) {
                       {
                         value: "default",
                         label: "Modern Default",
-                        bg: "bg-[#0f766e]",
+                        bg: "bg-teal-700",
                         colors: { background: "#fafafa", text: "#18181b", accent: "#0f766e" },
                       },
                       {
                         value: "spiderman",
-                        label: "Spider-Man",
+                        label: "Spider-Man 🕷️",
                         bg: "bg-red-600",
                         colors: { background: "#0c1830", text: "#f8fafc", accent: "#ef4444" },
                       },
                       {
                         value: "batman",
-                        label: "Dark Knight",
+                        label: "Dark Knight 🦇",
                         bg: "bg-neutral-800",
                         colors: { background: "#09090b", text: "#f4f4f5", accent: "#eab308" },
                       },
                       {
                         value: "cyberpunk",
-                        label: "Cyberpunk",
+                        label: "Cyberpunk ⚡",
                         bg: "bg-yellow-400",
                         colors: { background: "#0f0f15", text: "#facc15", accent: "#00f0ff" },
                       },
                       {
                         value: "sakura",
-                        label: "Sakura",
+                        label: "Sakura 🌸",
                         bg: "bg-rose-300",
                         colors: { background: "#fff5f6", text: "#4c0519", accent: "#f43f5e" },
                       },
@@ -596,10 +596,10 @@ export function BuilderClient({ formId }: { formId: string }) {
                       const isSelected = theme.preset === presetOption.value;
                       return (
                         <button
-                          className={`border p-4 text-left transition ${
+                          className={`border-2 p-4 text-left transition rounded-lg ${
                             isSelected
-                              ? "border-[#f7df00] bg-[#4a2319]"
-                              : "border-[#6f4939] bg-[#371812] hover:border-[#f7df00]/60"
+                              ? "border-black bg-zinc-200 text-zinc-950 font-black shadow-[3px_3px_0px_#000]"
+                              : "border-black bg-zinc-950 hover:bg-zinc-800 hover:scale-[1.02] shadow-[2px_2px_0px_#000] text-zinc-200"
                           }`}
                           key={presetOption.value}
                           onClick={() => {
@@ -612,8 +612,8 @@ export function BuilderClient({ formId }: { formId: string }) {
                           }}
                           type="button"
                         >
-                          <span className={`mb-3 block size-5 rounded-sm ${presetOption.bg}`} />
-                          <span className="font-black uppercase tracking-wider text-white">
+                          <span className={`mb-3 block size-5 rounded-full ${presetOption.bg} border-2 border-black`} />
+                          <span className="font-bold uppercase tracking-wider text-xs">
                             {presetOption.label}
                           </span>
                         </button>
@@ -624,12 +624,12 @@ export function BuilderClient({ formId }: { formId: string }) {
                   <div className="grid gap-4 sm:grid-cols-3">
                     {(["background", "text", "accent"] as const).map((key) => (
                       <label className="space-y-2" key={key}>
-                        <span className="text-xs font-black uppercase tracking-[0.2em] text-[#bfa48c]">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                           {key}
                         </span>
                         <div className="flex gap-2">
                           <input
-                            className="size-11 cursor-pointer border border-[#6f4939] bg-transparent p-1"
+                            className="size-11 cursor-pointer border-2 border-black bg-zinc-900 p-1"
                             onChange={(event) =>
                               setTheme((current) => ({ ...current, [key]: event.target.value }))
                             }
@@ -637,7 +637,7 @@ export function BuilderClient({ formId }: { formId: string }) {
                             value={theme[key].startsWith("#") ? theme[key] : "#fafafa"}
                           />
                           <Input
-                            className="h-11 rounded-md border-[#6f4939] bg-[#1b0906] text-[#fff8d7]"
+                            className="h-11 rounded-lg border-2 border-black bg-zinc-950 text-zinc-200 placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:border-zinc-400 shadow-[3px_3px_0px_#000]"
                             onChange={(event) =>
                               setTheme((current) => ({ ...current, [key]: event.target.value }))
                             }
@@ -649,9 +649,9 @@ export function BuilderClient({ formId }: { formId: string }) {
                   </div>
                 </div>
 
-                <DialogFooter className="border-t border-[#6f4939] pt-5">
+                <DialogFooter className="border-t-2 border-black pt-5 mt-6">
                   <DialogTrigger asChild>
-                    <Button className="rounded-lg border border-[#72f09a] bg-[#20c968] font-black uppercase tracking-[0.22em] text-[#06180c] shadow-[0_5px_0_#0a5528] hover:bg-[#32df7c]">
+                    <Button className="rounded-lg bg-zinc-200 text-zinc-950 border-2 border-black font-black uppercase tracking-wider text-xs shadow-[4px_4px_0px_#000] hover:bg-white active:scale-95 transition-all hover:scale-[1.02] hover:-rotate-1">
                       Done
                     </Button>
                   </DialogTrigger>
@@ -659,7 +659,7 @@ export function BuilderClient({ formId }: { formId: string }) {
               </DialogContent>
             </Dialog>
             <button
-              className="inline-flex items-center gap-2 rounded px-4 py-2 transition hover:bg-[#351711] hover:text-[#f7df00]"
+              className="rounded-full px-3.5 py-1.5 text-zinc-400 hover:text-zinc-100 hover:scale-105 active:scale-95 transition-all"
               onClick={() => {
                 const url = `${window.location.origin}/f/${slug}`;
                 void navigator.clipboard.writeText(url);
@@ -668,18 +668,16 @@ export function BuilderClient({ formId }: { formId: string }) {
               }}
               type="button"
             >
-              <Copy className="size-4" />
               {copiedLink ? "Copied" : "Share"}
             </button>
-            <Link className="inline-flex items-center gap-2 rounded px-4 py-2 transition hover:bg-[#351711] hover:text-[#f7df00]" href={`/forms/${formId}/results`}>
-              <BarChart3 className="size-4" />
+            <Link className="rounded-full px-3.5 py-1.5 text-zinc-400 hover:text-zinc-100 hover:scale-105 active:scale-95 transition-all" href={`/forms/${formId}/results`}>
               Analytics
             </Link>
           </nav>
 
           <div className="flex shrink-0 items-center gap-1 sm:gap-3">
             {status === "published" ? (
-              <Button asChild size="icon" variant="ghost" className="text-[#ead7c0] hover:bg-[#3c1e17] hover:text-[#f7df00]">
+              <Button asChild size="icon" variant="ghost" className="text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border-2 border-transparent">
                 <Link href={`/f/${slug}`} target="_blank">
                   <Eye />
                 </Link>
@@ -688,14 +686,14 @@ export function BuilderClient({ formId }: { formId: string }) {
             <Button
               size="icon"
               variant="ghost"
-              className="text-[#ead7c0] hover:bg-[#3c1e17] hover:text-[#f7df00]"
+              className="text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border-2 border-transparent"
               disabled={isWorking}
               onClick={() => void saveBuilder()}
             >
               {saveMutation.isPending ? <Loader2 className="animate-spin" /> : <Save />}
             </Button>
             <Button
-              className="h-12 rounded-lg border border-[#72f09a] bg-[#8cf47d] px-4 text-sm font-black uppercase tracking-[0.16em] text-[#07180d] shadow-[0_6px_0_#0b642f] hover:bg-[#9cff8b] sm:h-14 sm:px-8 sm:text-lg"
+              className="h-12 rounded-lg bg-zinc-200 text-zinc-950 border-2 border-black font-black uppercase tracking-wider text-xs shadow-[4px_4px_0px_#000] hover:bg-white active:scale-95 transition-all hover:scale-[1.02] hover:-rotate-1 sm:h-14 sm:px-8"
               disabled={!canSave || isWorking}
               onClick={() => void (status === "published" ? saveBuilder() : publish())}
             >
@@ -707,61 +705,61 @@ export function BuilderClient({ formId }: { formId: string }) {
       </header>
 
       <section className="grid min-h-[calc(100vh-80px)] lg:grid-cols-[320px_minmax(460px,1fr)_400px]">
-        <aside className="flex flex-col border-r-4 border-[#1a0a07] bg-[#43241d]">
-          <div className="flex items-center gap-4 border-b border-[#70513f] px-5 py-6">
-            <span className="grid size-14 place-items-center rounded-xl border border-[#f7df00] bg-[#f7df00] text-[#321812] shadow-[0_4px_0_#8f6d00]">
-              <Hammer className="size-7" />
+        <aside className="flex flex-col border-r-2 border-black bg-zinc-950">
+          <div className="flex items-center gap-4 border-b-2 border-black px-5 py-6">
+            <span className="grid size-12 place-items-center rounded-lg border-2 border-black bg-zinc-800 text-zinc-200 shadow-[2px_2px_0px_#000]">
+              <Hammer className="size-6" />
             </span>
             <div>
-              <h2 className="text-3xl font-black text-white">The Forge</h2>
-              <p className="font-bold text-[#cdb49d]">Arsenal Elements</p>
+              <h2 className="text-xl font-flow-display text-white leading-none">Elements</h2>
+              <p className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 mt-1">Form Palette</p>
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto px-5 py-6">
-            <p className="font-flow-display text-2xl tracking-[0.22em] text-[#bfa48c]">Add Fields</p>
+            <p className="font-flow-display text-xs tracking-wider text-zinc-400 uppercase">Add Fields</p>
             <div className="mt-4 grid grid-cols-2 gap-3">
               {fieldPalette.map((tool) => {
                 const Icon = tool.icon;
                 return (
                   <button
-                    className="group flex min-h-24 flex-col items-center justify-center gap-3 rounded-xl border-2 border-[#70513f] bg-[#503029] px-3 text-center text-[#f7e7cf] transition hover:-translate-y-0.5 hover:border-[#f7df00] hover:bg-[#5a332b]"
+                    className="group flex min-h-24 flex-col items-center justify-center gap-2 rounded-xl border-2 border-black bg-zinc-950 px-3 text-center text-zinc-200 transition-all hover:-translate-y-1 hover:bg-zinc-900 active:scale-95 shadow-[3px_3px_0px_#000] hover:scale-[1.03] hover:-rotate-1"
                     key={tool.value}
                     onClick={() => addQuestion(tool.value)}
                     type="button"
                   >
-                    <Icon className="size-6 text-[#f7df00] transition group-hover:scale-110" />
-                    <span className="text-sm font-semibold">{tool.label}</span>
+                    <Icon className="size-5 text-zinc-400 transition group-hover:scale-110 group-hover:text-zinc-200" />
+                    <span className="text-xs font-semibold">{tool.label}</span>
                   </button>
                 );
               })}
             </div>
 
             <div className="mt-8">
-              <p className="font-flow-display text-2xl tracking-[0.22em] text-[#bfa48c]">
-                Quest Order
+              <p className="font-flow-display text-xs tracking-wider text-zinc-400 uppercase">
+                Fields Order
               </p>
               <div className="mt-4 space-y-2">
                 {questions.map((question, index) => {
                   const Icon = iconForType(question.type);
                   return (
                     <button
-                      className={`w-full rounded-lg border p-3 text-left transition ${
+                      className={`w-full rounded-lg border-2 p-3 text-left transition-all ${
                         selectedQuestion?.clientId === question.clientId
-                          ? "border-[#f7df00] bg-[#2b110c]"
-                          : "border-[#70513f] bg-[#351711] hover:border-[#f7df00]/50"
+                          ? "border-black bg-zinc-200 text-zinc-950 shadow-[3.5px_3.5px_0px_#000]"
+                          : "border-black bg-zinc-950 text-zinc-400 hover:border-black/50 hover:bg-zinc-900 shadow-[2px_2px_0px_#000]"
                       }`}
                       key={question.clientId}
                       onClick={() => setSelectedId(question.clientId)}
                       type="button"
                     >
                       <div className="flex items-center gap-3">
-                        <Icon className="size-4 text-[#f7df00]" />
+                        <Icon className="size-4 shrink-0" />
                         <div className="min-w-0">
-                          <p className="text-xs font-black uppercase tracking-widest text-[#bfa48c]">
+                          <p className={`text-[9px] font-black uppercase tracking-wider ${selectedQuestion?.clientId === question.clientId ? "text-zinc-600" : "text-zinc-500"}`}>
                             Q{index + 1} / {labelForType(question.type)}
                           </p>
-                          <p className="truncate text-sm font-bold text-white">{question.title}</p>
+                          <p className="truncate text-xs font-bold">{question.title}</p>
                         </div>
                       </div>
                     </button>
@@ -771,53 +769,54 @@ export function BuilderClient({ formId }: { formId: string }) {
             </div>
           </div>
 
-          <div className="border-t border-[#70513f] p-5">
+          <div className="border-t-2 border-black p-5">
             <Link
-              className="flex h-16 items-center justify-center gap-3 rounded-lg border border-[#f7df00] bg-[#f7df00] text-lg font-black uppercase tracking-[0.18em] text-[#24100b] shadow-[0_6px_0_#8f6d00]"
+              className="flex h-12 items-center justify-center gap-2.5 rounded-lg border-2 border-black bg-zinc-200 text-sm font-black uppercase tracking-wider text-zinc-950 shadow-[4px_4px_0px_#000] hover:bg-white active:scale-95 transition-all hover:scale-102 hover:-rotate-1"
               href="/pricing"
             >
-              <Gem className="size-6" />
-              Upgrade Realm
+              <Gem className="size-4" />
+              Upgrade Plan
             </Link>
           </div>
         </aside>
 
-        <section className="overflow-y-auto bg-[#210906] px-6 py-10">
+        <section className="overflow-y-auto bg-zinc-900 px-6 py-10">
           <div className="mx-auto max-w-4xl">
             <div className="mb-10">
               <div className="flex items-end justify-between">
-                <p className="font-flow-display text-3xl tracking-[0.22em] text-white">
-                  Mana Progress
+                <p className="font-flow-display text-lg tracking-wider text-white">
+                  Form Completion
                 </p>
-                <p className="text-3xl font-black text-[#f7df00]">{completionPercent}%</p>
+                <p className="text-2xl font-flow-display text-white">{completionPercent}%</p>
               </div>
-              <div className="mt-3 rounded-full border-4 border-[#654437] bg-[#3b1b14] p-1 shadow-inner">
+              <div className="mt-3 rounded-none border-2 border-black bg-zinc-950 p-0.5 shadow-[2px_2px_0px_#000] h-6">
                 <div
-                  className="h-4 rounded-full bg-[linear-gradient(90deg,#6de1ff,#28aef7,#20c968)] shadow-[0_0_12px_rgba(109,225,255,0.5)]"
+                  className="h-full rounded-none bg-zinc-200 border-r-2 border-black transition-all duration-300"
                   style={{ width: `${completionPercent}%` }}
                 />
               </div>
             </div>
 
             <div className="relative mx-auto max-w-3xl">
-              <span className="absolute -left-6 -top-5 z-10 grid size-16 -rotate-12 place-items-center rounded-lg border-4 border-[#6a4f24] bg-[#f7df00] text-[#513914] shadow-[0_8px_18px_rgba(0,0,0,0.35)]">
-                <Shield className="size-9" />
+              <span className="absolute -left-5 -top-5 z-10 grid size-12 -rotate-12 place-items-center rounded-lg border-2 border-black bg-zinc-800 text-zinc-200 shadow-[2.5px_2.5px_0px_#000]">
+                <Shield className="size-5" />
               </span>
-              <span className="absolute -right-6 -top-5 z-10 grid size-16 rotate-12 place-items-center rounded-lg border-4 border-[#6a4f24] bg-[#f7df00] text-[#513914] shadow-[0_8px_18px_rgba(0,0,0,0.35)]">
-                <Crown className="size-9" />
+              <span className="absolute -right-5 -top-5 z-10 grid size-12 rotate-12 place-items-center rounded-lg border-2 border-black bg-zinc-800 text-zinc-200 shadow-[2.5px_2.5px_0px_#000]">
+                <Crown className="size-5" />
               </span>
 
-              <div className="min-h-[760px] rounded-sm bg-[#fff9ed] px-12 py-14 text-[#160705] shadow-[0_18px_45px_rgba(0,0,0,0.45)]">
-                <div className="border-b-2 border-[#2d160f] pb-6">
+              {/* HIGH CONTRAST COMIC PAPER CANVAS VIEW */}
+              <div className="min-h-[760px] rounded-none bg-white border-4 border-black px-12 py-14 text-zinc-950 shadow-[10px_10px_0px_#000]">
+                <div className="border-b-2 border-black pb-6">
                   <Input
-                    className="h-auto rounded-none border-0 bg-transparent px-0 text-4xl font-black text-[#160705] shadow-none focus-visible:ring-0"
+                    className="h-auto rounded-none border-0 bg-transparent px-0 text-3xl font-black text-zinc-950 shadow-none focus-visible:ring-0 focus-visible:border-0"
                     onChange={(event) => setTitle(event.target.value)}
                     value={title}
                   />
                   <Textarea
-                    className="mt-3 min-h-16 resize-none rounded-none border-0 bg-transparent px-0 text-base font-semibold text-[#6f635c] shadow-none focus-visible:ring-0"
+                    className="mt-3 min-h-16 resize-none rounded-none border-0 bg-transparent px-0 text-sm font-bold text-zinc-500 shadow-none focus-visible:ring-0 focus-visible:border-0"
                     onChange={(event) => setDescription(event.target.value)}
-                    placeholder="Describe the quest for your audience."
+                    placeholder="Describe this form..."
                     value={description}
                   />
                 </div>
@@ -825,28 +824,28 @@ export function BuilderClient({ formId }: { formId: string }) {
                 <div className="mt-10 space-y-8">
                   {questions.map((question, index) => (
                     <article
-                      className={`cursor-pointer rounded-xl border-4 p-7 transition ${
+                      className={`cursor-pointer border-2 p-6 transition-all rounded-none ${
                         selectedQuestion?.clientId === question.clientId
-                          ? "border-[#3b3425] bg-[#fffdf6] shadow-[0_4px_0_#bdb5a5]"
-                          : "border-dashed border-[#c9c0ae] bg-[#fff9ed] opacity-45"
+                          ? "border-black bg-zinc-50 shadow-[4px_4px_0px_#000] scale-[1.01]"
+                          : "border-dashed border-zinc-300 bg-white opacity-60 hover:opacity-90 hover:scale-[1.005]"
                       }`}
                       key={question.clientId}
                       onClick={() => setSelectedId(question.clientId)}
                     >
-                      <div className="mb-5 flex items-start justify-between gap-4">
+                      <div className="mb-4 flex items-start justify-between gap-4">
                         <div>
-                          <p className="text-sm font-bold text-[#8a8176]">Question {index + 1}</p>
-                          <h3 className="mt-1 text-3xl font-black leading-tight text-[#160705]">
+                          <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500">Question {index + 1}</p>
+                          <h3 className="mt-1 text-xl font-bold leading-tight text-zinc-950">
                             {question.title}
-                            {question.required ? <span className="text-[#9f2b16]"> *</span> : null}
+                            {question.required ? <span className="text-red-600"> *</span> : null}
                           </h3>
                           {question.description ? (
-                            <p className="mt-3 text-base font-semibold text-[#8a8176]">
+                            <p className="mt-2 text-xs font-semibold text-zinc-500">
                               {question.description}
                             </p>
                           ) : null}
                         </div>
-                        <Badge className="border-[#5b4a35] bg-[#312719] text-[#fff1bc]" variant="outline">
+                        <Badge className="border-2 border-black bg-zinc-900 text-zinc-200 font-bold uppercase text-[9px] shadow-[1.5px_1.5px_0_#000]" variant="outline">
                           {labelForType(question.type)}
                         </Badge>
                       </div>
@@ -856,57 +855,57 @@ export function BuilderClient({ formId }: { formId: string }) {
                 </div>
               </div>
 
-              <span className="font-flow-display absolute -bottom-8 left-1/2 -translate-x-1/2 rounded-md border-4 border-[#7a552e] bg-[#9d5018] px-16 py-4 text-2xl tracking-[0.28em] text-[#ffe97a] shadow-[0_5px_0_#40200b]">
-                Active Artifact
+              <span className="font-flow-display absolute -bottom-6 left-1/2 -translate-x-1/2 rounded-lg border-2 border-black bg-zinc-200 px-12 py-3 text-sm tracking-widest text-zinc-950 shadow-[3px_3px_0px_#000] font-black uppercase whitespace-nowrap">
+                Active Form Canvas
               </span>
             </div>
           </div>
         </section>
 
-        <aside className="flex flex-col border-l-4 border-[#1a0a07] bg-[#43241d]">
-          <div className="flex items-center gap-4 border-b border-[#70513f] px-8 py-7">
-            <span className="grid size-12 place-items-center text-[#f7df00]">
-              <Settings className="size-9" />
+        <aside className="flex flex-col border-l-2 border-black bg-zinc-950">
+          <div className="flex items-center gap-4 border-b-2 border-black px-6 py-5">
+            <span className="grid size-10 place-items-center text-zinc-200 border-2 border-black bg-zinc-800 rounded-lg shadow-[2px_2px_0px_#000]">
+              <Settings className="size-5" />
             </span>
             <div>
-              <h2 className="text-3xl font-black text-white">The Treasury</h2>
-              <p className="font-bold text-[#cdb49d]">Quest Configuration</p>
+              <h2 className="text-xl font-flow-display text-white leading-none">Settings</h2>
+              <p className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 mt-1">Field Config</p>
             </div>
           </div>
 
           {selectedQuestion ? (
-            <div className="flex-1 overflow-y-auto px-8 py-7">
-              <div className="mb-6 flex items-center justify-between">
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-[#bfa48c]">
-                  Artifact {selectedQuestionIndex + 1} of {questions.length}
+            <div className="flex-1 overflow-y-auto px-6 py-5">
+              <div className="mb-5 flex items-center justify-between">
+                <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+                  Field {selectedQuestionIndex + 1} of {questions.length}
                 </p>
                 <div className="flex gap-1">
                   <Button
-                    className="text-[#ead7c0] hover:bg-[#3c1e17] hover:text-[#f7df00]"
+                    className="text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 h-8 w-8"
                     onClick={() => moveQuestion(selectedQuestion.clientId, -1)}
-                    size="icon-sm"
+                    size="icon"
                     variant="ghost"
                   >
-                    <ArrowUp />
+                    <ArrowUp className="size-4" />
                   </Button>
                   <Button
-                    className="text-[#ead7c0] hover:bg-[#3c1e17] hover:text-[#f7df00]"
+                    className="text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 h-8 w-8"
                     onClick={() => moveQuestion(selectedQuestion.clientId, 1)}
-                    size="icon-sm"
+                    size="icon"
                     variant="ghost"
                   >
-                    <ArrowDown />
+                    <ArrowDown className="size-4" />
                   </Button>
                 </div>
               </div>
 
-              <label className="block space-y-3">
-                <span className="flex items-center gap-2 text-lg font-black uppercase tracking-[0.12em] text-[#bfa48c]">
-                  <ScrollText className="size-4" />
-                  Field Quest
+              <label className="block space-y-2">
+                <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
+                  <ScrollText className="size-3.5" />
+                  Question Title
                 </span>
                 <Textarea
-                  className="min-h-20 rounded-lg border-2 border-[#70513f] bg-[#351711] text-xl font-bold text-[#fff8d7] placeholder:text-[#8d7b71]"
+                  className="min-h-16 rounded-lg border-2 border-black bg-zinc-950 text-sm text-zinc-200 placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:border-zinc-400 shadow-[3px_3px_0px_#000]"
                   onChange={(event) =>
                     updateQuestion(selectedQuestion.clientId, { title: event.target.value })
                   }
@@ -914,25 +913,25 @@ export function BuilderClient({ formId }: { formId: string }) {
                 />
               </label>
 
-              <label className="mt-7 block space-y-3">
-                <span className="flex items-center gap-2 text-lg font-black uppercase tracking-[0.12em] text-[#bfa48c]">
-                  <Wand2 className="size-4" />
-                  Placeholder Spell
+              <label className="mt-5 block space-y-2">
+                <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
+                  <Wand2 className="size-3.5" />
+                  Placeholder Text
                 </span>
                 <Input
-                  className="h-16 rounded-lg border-2 border-[#70513f] bg-[#351711] text-lg text-[#fff8d7] placeholder:text-[#8d7b71]"
+                  className="h-11 rounded-lg border-2 border-black bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:border-zinc-400 shadow-[3px_3px_0px_#000]"
                   onChange={(event) =>
                     updateQuestion(selectedQuestion.clientId, {
                       placeholder: event.target.value,
                     })
                   }
-                  placeholder="Type name here..."
+                  placeholder="Type placeholder here..."
                   value={selectedQuestion.placeholder ?? ""}
                 />
               </label>
 
-              <label className="mt-7 block space-y-3">
-                <span className="text-lg font-black uppercase tracking-[0.12em] text-[#bfa48c]">
+              <label className="mt-5 block space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                   Field Type
                 </span>
                 <Select
@@ -941,7 +940,7 @@ export function BuilderClient({ formId }: { formId: string }) {
                   }
                   value={selectedQuestion.type}
                 >
-                  <SelectTrigger className="h-14 rounded-lg border-2 border-[#70513f] bg-[#351711] text-[#fff8d7]">
+                  <SelectTrigger className="h-11 rounded-lg border-2 border-black bg-zinc-955 text-xs text-zinc-200">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -954,12 +953,12 @@ export function BuilderClient({ formId }: { formId: string }) {
                 </Select>
               </label>
 
-              <label className="mt-7 block space-y-3">
-                <span className="text-lg font-black uppercase tracking-[0.12em] text-[#bfa48c]">
-                  Description Lore
+              <label className="mt-5 block space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                  Field Description
                 </span>
                 <Textarea
-                  className="min-h-20 rounded-lg border-2 border-[#70513f] bg-[#351711] text-[#fff8d7]"
+                  className="min-h-16 rounded-lg border-2 border-black bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:border-zinc-400 shadow-[3px_3px_0px_#000]"
                   onChange={(event) =>
                     updateQuestion(selectedQuestion.clientId, {
                       description: event.target.value,
@@ -969,12 +968,12 @@ export function BuilderClient({ formId }: { formId: string }) {
                 />
               </label>
 
-              <div className="mt-7 rounded-xl border-2 border-[#70513f] bg-[#1b0906] p-5">
+              <div className="mt-5 rounded-xl border-2 border-black bg-zinc-900 p-4 shadow-[3px_3px_0px_#000]">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-xl font-black text-white">Required Loot</p>
-                    <p className="text-xs font-black uppercase tracking-widest text-[#bfa48c]">
-                      Hero must answer
+                    <p className="text-xs font-bold text-white uppercase">Required Field</p>
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-zinc-500">
+                      Mandatory response
                     </p>
                   </div>
                   <Switch
@@ -986,31 +985,31 @@ export function BuilderClient({ formId }: { formId: string }) {
                 </div>
               </div>
 
-              <div className="mt-7 rounded-xl border-2 border-[#70513f] bg-[#351711] p-5">
-                <p className="text-lg font-black uppercase tracking-[0.12em] text-[#bfa48c]">
-                  Deployment Cost
+              <div className="mt-5 rounded-xl border-2 border-black bg-zinc-900 p-4 shadow-[3px_3px_0px_#000]">
+                <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                  Element Metrics
                 </p>
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  <div className="flex h-16 items-center justify-center gap-3 rounded-md border-2 border-[#70513f] bg-[#2a100c] text-xl font-black text-[#f7df00]">
-                    <Coins className="size-6" />
-                    {500 + questions.length * 50}
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div className="flex h-12 flex-col items-center justify-center rounded-lg border-2 border-black bg-zinc-950 text-xs font-bold text-zinc-300">
+                    <span className="text-[9px] text-zinc-500 uppercase">Index</span>
+                    <span className="text-sm font-black">{selectedQuestionIndex + 1}</span>
                   </div>
-                  <div className="flex h-16 items-center justify-center gap-3 rounded-md border-2 border-[#70513f] bg-[#2a100c] text-xl font-black text-[#49ddff]">
-                    <HeartPulse className="size-6" />
-                    {Math.max(12, questions.length * 4)}
+                  <div className="flex h-12 flex-col items-center justify-center rounded-lg border-2 border-black bg-zinc-950 text-xs font-bold text-zinc-300">
+                    <span className="text-[9px] text-zinc-500 uppercase">Options</span>
+                    <span className="text-sm font-black">{selectedQuestion.options.length}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-7 rounded-xl border-2 border-[#70513f] bg-[#351711] p-5">
-                <p className="text-lg font-black uppercase tracking-[0.12em] text-[#bfa48c]">
-                  Realm Visibility
+              <div className="mt-5 rounded-xl border-2 border-black bg-zinc-900 p-4 shadow-[3px_3px_0px_#000]">
+                <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                  Form Visibility
                 </p>
                 <Select
                   onValueChange={(value) => setVisibility(value as "public" | "unlisted")}
                   value={visibility}
                 >
-                  <SelectTrigger className="mt-4 h-14 rounded-lg border-2 border-[#70513f] bg-[#2a100c] text-[#fff8d7]">
+                  <SelectTrigger className="mt-3 h-11 rounded-lg border-2 border-black bg-zinc-950 text-xs text-zinc-200">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1021,74 +1020,74 @@ export function BuilderClient({ formId }: { formId: string }) {
               </div>
 
               {["short_text", "long_text", "email"].includes(selectedQuestion.type) ? (
-                <div className="mt-7 rounded-xl border-2 border-[#70513f] bg-[#351711] p-5">
-                  <p className="text-lg font-black uppercase tracking-[0.12em] text-[#bfa48c]">
-                    Text Runes
+                <div className="mt-5 rounded-xl border-2 border-black bg-zinc-900 p-4 shadow-[3px_3px_0px_#000]">
+                  <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                    Text Validation
                   </p>
-                  <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="mt-3 grid grid-cols-2 gap-3">
                     <Input
-                      className="h-12 rounded-lg border-[#70513f] bg-[#2a100c] text-[#fff8d7]"
+                      className="h-10 rounded-lg border-2 border-black bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:border-zinc-400 shadow-[2px_2px_0px_#000]"
                       min={0}
                       onChange={(event) =>
                         updateValidation(selectedQuestion.clientId, {
                           minLength: parseNumberField(event.target.value, true),
                         })
                       }
-                      placeholder="Min"
+                      placeholder="Min length"
                       type="number"
                       value={selectedQuestion.validation.minLength ?? ""}
                     />
                     <Input
-                      className="h-12 rounded-lg border-[#70513f] bg-[#2a100c] text-[#fff8d7]"
+                      className="h-10 rounded-lg border-2 border-black bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:border-zinc-400 shadow-[2px_2px_0px_#000]"
                       min={1}
                       onChange={(event) =>
                         updateValidation(selectedQuestion.clientId, {
                           maxLength: parseNumberField(event.target.value, true),
                         })
                       }
-                      placeholder="Max"
+                      placeholder="Max length"
                       type="number"
                       value={selectedQuestion.validation.maxLength ?? ""}
                     />
                   </div>
                   <Input
-                    className="mt-3 h-12 rounded-lg border-[#70513f] bg-[#2a100c] text-[#fff8d7]"
+                    className="mt-3 h-10 rounded-lg border-2 border-black bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:border-zinc-400 shadow-[2px_2px_0px_#000]"
                     onChange={(event) =>
                       updateValidation(selectedQuestion.clientId, {
                         pattern: event.target.value || null,
                       })
                     }
-                    placeholder="Pattern"
+                    placeholder="RegEx Pattern"
                     value={selectedQuestion.validation.pattern ?? ""}
                   />
                 </div>
               ) : null}
 
               {["number", "rating"].includes(selectedQuestion.type) ? (
-                <div className="mt-7 rounded-xl border-2 border-[#70513f] bg-[#351711] p-5">
-                  <p className="text-lg font-black uppercase tracking-[0.12em] text-[#bfa48c]">
-                    Number Runes
+                <div className="mt-5 rounded-xl border-2 border-black bg-zinc-900 p-4 shadow-[3px_3px_0px_#000]">
+                  <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                    Number Bounds
                   </p>
-                  <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="mt-3 grid grid-cols-2 gap-3">
                     <Input
-                      className="h-12 rounded-lg border-[#70513f] bg-[#2a100c] text-[#fff8d7]"
+                      className="h-10 rounded-lg border-2 border-black bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:border-zinc-400 shadow-[2px_2px_0px_#000]"
                       onChange={(event) =>
                         updateValidation(selectedQuestion.clientId, {
                           min: parseNumberField(event.target.value),
                         })
                       }
-                      placeholder="Min"
+                      placeholder="Min val"
                       type="number"
                       value={selectedQuestion.validation.min ?? ""}
                     />
                     <Input
-                      className="h-12 rounded-lg border-[#70513f] bg-[#2a100c] text-[#fff8d7]"
+                      className="h-10 rounded-lg border-2 border-black bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:border-zinc-400 shadow-[2px_2px_0px_#000]"
                       onChange={(event) =>
                         updateValidation(selectedQuestion.clientId, {
                           max: parseNumberField(event.target.value),
                         })
                       }
-                      placeholder="Max"
+                      placeholder="Max val"
                       type="number"
                       value={selectedQuestion.validation.max ?? ""}
                     />
@@ -1097,37 +1096,37 @@ export function BuilderClient({ formId }: { formId: string }) {
               ) : null}
 
               {isOptionType(selectedQuestion.type) ? (
-                <div className="mt-7 rounded-xl border-2 border-[#70513f] bg-[#351711] p-5">
+                <div className="mt-5 rounded-xl border-2 border-black bg-zinc-900 p-4 shadow-[3px_3px_0px_#000]">
                   <div className="flex items-center justify-between">
-                    <p className="text-lg font-black uppercase tracking-[0.12em] text-[#bfa48c]">
-                      Guild Options
+                    <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                      Choice Options
                     </p>
                     <Button
-                      className="rounded-md border border-[#f7df00] bg-[#f7df00] text-[#24100b] hover:bg-[#ffe833]"
+                      className="rounded-md border-2 border-black bg-zinc-200 text-zinc-950 shadow-[1.5px_1.5px_0px_#000] font-black uppercase text-[10px] tracking-wider hover:bg-white active:scale-95 transition-all"
                       onClick={() => addOption(selectedQuestion.clientId)}
                       size="sm"
                     >
-                      <Plus />
+                      <Plus className="size-3" />
                       Add
                     </Button>
                   </div>
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-3 space-y-2">
                     {selectedQuestion.options.map((option, index) => (
                       <div className="flex gap-2" key={`${selectedQuestion.clientId}-${index}`}>
                         <Input
-                          className="h-12 rounded-lg border-[#70513f] bg-[#2a100c] text-[#fff8d7]"
+                          className="h-10 rounded-lg border-2 border-black bg-zinc-950 text-xs text-zinc-200 focus-visible:ring-0 focus-visible:border-zinc-400 shadow-[2px_2px_0px_#000]"
                           onChange={(event) =>
                             updateOption(selectedQuestion.clientId, index, event.target.value)
                           }
                           value={option.label}
                         />
                         <Button
-                          className="text-[#ead7c0] hover:bg-[#3c1e17] hover:text-[#f7df00]"
+                          className="text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 h-10 w-10 border-2 border-transparent"
                           onClick={() => removeOption(selectedQuestion.clientId, index)}
                           size="icon"
                           variant="ghost"
                         >
-                          <Trash2 />
+                          <Trash2 className="size-4" />
                         </Button>
                       </div>
                     ))}
@@ -1137,10 +1136,10 @@ export function BuilderClient({ formId }: { formId: string }) {
             </div>
           ) : null}
 
-          <div className="border-t border-[#70513f] p-8">
+          <div className="border-t-2 border-black p-6">
             {status === "published" ? (
               <Button
-                className="mb-4 h-14 w-full rounded-lg border border-[#70513f] bg-[#2a100c] text-sm font-black uppercase tracking-[0.18em] text-[#fff8d7] hover:bg-[#351711]"
+                className="mb-4 h-12 w-full rounded-lg border-2 border-black bg-zinc-950 text-xs font-black uppercase tracking-wider text-zinc-200 shadow-[3px_3px_0px_#000] hover:bg-zinc-900 active:scale-95 transition-all hover:scale-102 hover:-rotate-1"
                 disabled={isWorking}
                 onClick={() => void unpublish()}
               >
@@ -1148,12 +1147,12 @@ export function BuilderClient({ formId }: { formId: string }) {
               </Button>
             ) : null}
             <Button
-              className="h-16 w-full rounded-lg border border-[#d30e1c] bg-[#b90012] text-lg font-black text-white shadow-[0_6px_0_#5f0008] hover:bg-[#d30016]"
+              className="h-14 w-full rounded-lg border-2 border-rose-600 bg-rose-950/40 text-rose-200 hover:bg-rose-650 hover:text-white shadow-[3px_3px_0px_#000] hover:scale-102 hover:rotate-1 active:scale-95 transition-all font-black uppercase text-xs tracking-wider"
               disabled={!selectedQuestion}
               onClick={() => selectedQuestion && removeQuestion(selectedQuestion.clientId)}
             >
-              <Trash2 className="size-6" />
-              Banish Element
+              <Trash2 className="size-5 mr-1.5" />
+              Delete Question
             </Button>
           </div>
         </aside>
@@ -1166,7 +1165,7 @@ function QuestionPreview({ question }: { question: DraftQuestion }) {
   if (question.type === "long_text") {
     return (
       <Textarea
-        className="min-h-32 rounded-lg border-4 border-[#3b3425] bg-[#e9e3d8] text-[#160705] placeholder:text-[#9b9189]"
+        className="min-h-24 rounded-none border-2 border-black bg-zinc-50 text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:border-black shadow-[2px_2px_0px_#000]"
         disabled
         placeholder={question.placeholder ?? "Long answer"}
       />
@@ -1175,16 +1174,16 @@ function QuestionPreview({ question }: { question: DraftQuestion }) {
 
   if (question.type === "single_choice" || question.type === "dropdown") {
     return (
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         {question.options.map((option) => (
           <div
-            className="flex items-center gap-3 rounded-lg border-4 border-dashed border-[#c9c0ae] bg-[#fff9ed] p-4 text-[#5f5249]"
+            className="flex items-center gap-3 rounded-none border-2 border-dashed border-zinc-400 bg-white p-3 text-zinc-800"
             key={option.value}
           >
-            <span className="grid size-6 place-items-center rounded-full border-2 border-[#3b3425]">
-              {question.type === "dropdown" ? <Check className="size-3" /> : null}
+            <span className="grid size-5 place-items-center rounded-full border-2 border-black">
+              {question.type === "dropdown" ? <Check className="size-2.5" /> : null}
             </span>
-            <span className="font-semibold">{option.label}</span>
+            <span className="font-semibold text-xs">{option.label}</span>
           </div>
         ))}
       </div>
@@ -1193,14 +1192,14 @@ function QuestionPreview({ question }: { question: DraftQuestion }) {
 
   if (question.type === "multiple_choice") {
     return (
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         {question.options.map((option) => (
           <div
-            className="flex items-center gap-3 rounded-lg border-4 border-dashed border-[#c9c0ae] bg-[#fff9ed] p-4 text-[#5f5249]"
+            className="flex items-center gap-3 rounded-none border-2 border-dashed border-zinc-400 bg-white p-3 text-zinc-800"
             key={option.value}
           >
-            <span className="size-6 rounded-sm border-2 border-[#3b3425]" />
-            <span className="font-semibold">{option.label}</span>
+            <span className="size-5 rounded-none border-2 border-black" />
+            <span className="font-semibold text-xs">{option.label}</span>
           </div>
         ))}
       </div>
@@ -1209,10 +1208,10 @@ function QuestionPreview({ question }: { question: DraftQuestion }) {
 
   if (question.type === "rating") {
     return (
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2">
         {[1, 2, 3, 4, 5].map((value) => (
           <span
-            className="grid size-12 place-items-center rounded-lg border-4 border-[#3b3425] bg-[#e9e3d8] text-lg font-black"
+            className="grid size-10 place-items-center rounded-none border-2 border-black bg-zinc-100 text-sm font-black text-zinc-900 shadow-[1.5px_1.5px_0px_#000]"
             key={value}
           >
             {value}
@@ -1224,11 +1223,11 @@ function QuestionPreview({ question }: { question: DraftQuestion }) {
 
   if (question.type === "yes_no") {
     return (
-      <div className="flex gap-3">
-        <Button disabled variant="outline" className="rounded-lg border-4 border-[#3b3425] bg-[#e9e3d8] text-[#160705]">
+      <div className="flex gap-2">
+        <Button disabled variant="outline" className="rounded-none border-2 border-black bg-zinc-100 text-zinc-900 h-9 px-4 text-xs font-black shadow-[1.5px_1.5px_0px_#000]">
           Yes
         </Button>
-        <Button disabled variant="outline" className="rounded-lg border-4 border-[#3b3425] bg-[#e9e3d8] text-[#160705]">
+        <Button disabled variant="outline" className="rounded-none border-2 border-black bg-zinc-100 text-zinc-900 h-9 px-4 text-xs font-black shadow-[1.5px_1.5px_0px_#000]">
           No
         </Button>
       </div>
@@ -1237,7 +1236,7 @@ function QuestionPreview({ question }: { question: DraftQuestion }) {
 
   return (
     <Input
-      className="h-20 rounded-lg border-4 border-[#3b3425] bg-[#e9e3d8] px-8 text-xl text-[#160705] placeholder:text-[#9b9189] shadow-[0_4px_0_#bdb5a5]"
+      className="h-12 rounded-none border-2 border-black bg-zinc-50 px-4 text-sm text-zinc-900 placeholder:text-zinc-400 shadow-[2px_2px_0px_#000] focus-visible:ring-0 focus-visible:border-black"
       disabled
       placeholder={question.placeholder ?? labelForType(question.type)}
       type={question.type === "number" ? "number" : question.type === "date" ? "date" : "text"}

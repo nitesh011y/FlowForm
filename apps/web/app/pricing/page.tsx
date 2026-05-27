@@ -29,7 +29,7 @@ const plans = [
     badge: "Starter",
     copy: "Launch polished public and unlisted forms for small campaigns, waitlists, and validation objectives.",
     cta: "Claim free",
-    href: "/dashboard",
+    href: "/dashboard?plan=starter",
     perks: ["100 responses each month", "3 live forms", "Public gallery listing", "Basic analytics"],
   },
   {
@@ -39,7 +39,7 @@ const plans = [
     badge: "Most Popular",
     copy: "For creators and startups that need unlimited campaigns, richer analytics, and cleaner response files.",
     cta: "Deploy growth",
-    href: "/dashboard",
+    href: "/dashboard?plan=growth",
     featured: true,
     perks: ["10,000 responses each month", "Unlimited published forms", "Unlisted campaigns", "CSV exports"],
   },
@@ -50,7 +50,7 @@ const plans = [
     badge: "Enterprise",
     copy: "For teams running high-volume intake, waitlists, events, surveys, hiring, and internal data capture.",
     cta: "Upgrade quota",
-    href: "/dashboard",
+    href: "/dashboard?plan=enterprise",
     perks: ["Unlimited responses", "Priority support", "Advanced analytics", "Team-ready workflows"],
   },
 ];
@@ -138,12 +138,14 @@ export default function PricingPage() {
 
         <div className="mt-16 grid items-stretch gap-8 lg:grid-cols-3 max-w-5xl mx-auto">
           {plans.map((plan) => (
-            <article
-              className={`relative flex rounded-xl border-2 bg-zinc-900/40 p-8 shadow-[4px_4px_0px_#18181b] transition-all duration-300 hover:scale-102 hover:-rotate-1 ${
+            <Link
+              aria-label={`Select ${plan.label}`}
+              className={`group relative flex rounded-xl border-2 bg-zinc-900/40 p-8 shadow-[4px_4px_0px_#18181b] transition-all duration-300 hover:scale-102 hover:-rotate-1 active:scale-[0.99] cursor-pointer ${
                 plan.featured
                   ? "border-black bg-zinc-900 shadow-[8px_8px_0px_#000] scale-[1.02]"
                   : "border-black shadow-[6px_6px_0px_#18181b]"
               }`}
+              href={plan.href}
               key={plan.label}
             >
               <div className="flex w-full flex-col justify-between">
@@ -191,19 +193,18 @@ export default function PricingPage() {
                   </ul>
                 </div>
 
-                <Link
+                <span
                   className={`mt-8 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-200 border-2 border-black ${
                     plan.featured
-                      ? "bg-zinc-200 text-zinc-950 shadow-[3px_3px_0px_#000] hover:bg-white"
-                      : "bg-zinc-950 text-zinc-350 shadow-[3px_3px_0px_#000] hover:bg-zinc-900"
+                      ? "bg-zinc-200 text-zinc-950 shadow-[3px_3px_0px_#000] group-hover:bg-white"
+                      : "bg-zinc-950 text-zinc-350 shadow-[3px_3px_0px_#000] group-hover:bg-zinc-900"
                   }`}
-                  href={plan.href}
                 >
                   {plan.cta}
-                  <ArrowRight className="size-3.5" />
-                </Link>
+                  <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
+                </span>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       </section>
