@@ -39,6 +39,7 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -226,6 +227,9 @@ export function BuilderClient({ formId }: { formId: string }) {
   const publishMutation = trpc.forms.publish.useMutation();
   const unpublishMutation = trpc.forms.unpublish.useMutation();
   const [copiedLink, setCopiedLink] = useState(false);
+  const [deployDialogOpen, setDeployDialogOpen] = useState(false);
+  const [deployShareUrl, setDeployShareUrl] = useState("");
+  const [deployCopied, setDeployCopied] = useState(false);
   const [hydratedFormId, setHydratedFormId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -449,12 +453,41 @@ export function BuilderClient({ formId }: { formId: string }) {
     return saved;
   }
 
+  function getShareUrl(slugValue: string) {
+    const origin = typeof window === "undefined" ? "" : window.location.origin;
+    return `${origin}/f/${slugValue}`;
+  }
+
+  async function copyShareUrl(url: string) {
+    try {
+      await navigator.clipboard.writeText(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async function publish() {
     await saveBuilder();
     const published = await publishMutation.mutateAsync({ formId });
     setStatus(published.status);
+    setDeployShareUrl(getShareUrl(published.slug));
+    setDeployCopied(false);
+    setDeployDialogOpen(true);
     await utils.forms.byId.invalidate({ formId });
     await utils.forms.list.invalidate();
+  }
+
+  async function deployForm() {
+    if (status === "published") {
+      const saved = await saveBuilder();
+      setDeployShareUrl(getShareUrl(saved.slug));
+      setDeployCopied(false);
+      setDeployDialogOpen(true);
+      return;
+    }
+
+    await publish();
   }
 
   async function unpublish() {
@@ -501,6 +534,7 @@ export function BuilderClient({ formId }: { formId: string }) {
   }
 
   const slug = formQuery.data.slug;
+  const currentShareUrl = deployShareUrl || getShareUrl(slug);
   const completionPercent = Math.min(
     100,
     Math.round(
@@ -661,10 +695,11 @@ export function BuilderClient({ formId }: { formId: string }) {
             <button
               className="rounded-full px-3.5 py-1.5 text-zinc-400 hover:text-zinc-100 hover:scale-105 active:scale-95 transition-all"
               onClick={() => {
-                const url = `${window.location.origin}/f/${slug}`;
-                void navigator.clipboard.writeText(url);
-                setCopiedLink(true);
-                setTimeout(() => setCopiedLink(false), 2000);
+                void copyShareUrl(getShareUrl(slug)).then((copied) => {
+                  if (!copied) return;
+                  setCopiedLink(true);
+                  setTimeout(() => setCopiedLink(false), 2000);
+                });
               }}
               type="button"
             >
@@ -695,7 +730,7 @@ export function BuilderClient({ formId }: { formId: string }) {
             <Button
               className="h-12 rounded-lg bg-zinc-200 text-zinc-950 border-2 border-black font-black uppercase tracking-wider text-xs shadow-[4px_4px_0px_#000] hover:bg-white active:scale-95 transition-all hover:scale-[1.02] hover:-rotate-1 sm:h-14 sm:px-8"
               disabled={!canSave || isWorking}
-              onClick={() => void (status === "published" ? saveBuilder() : publish())}
+              onClick={() => void deployForm()}
             >
               {publishMutation.isPending ? <Loader2 className="animate-spin" /> : <Send />}
               Deploy
@@ -703,6 +738,88 @@ export function BuilderClient({ formId }: { formId: string }) {
           </div>
         </div>
       </header>
+
+      <Dialog
+        open={deployDialogOpen}
+        onOpenChange={(open) => {
+          setDeployDialogOpen(open);
+          if (!open) setDeployCopied(false);
+        }}
+      >
+        <DialogContent className="max-w-xl overflow-hidden rounded-2xl border-3 border-black bg-zinc-950 p-0 text-zinc-200 shadow-[10px_10px_0px_#000]">
+          <div className="flow-kingdom-band border-b-3 border-black px-6 py-7 text-center">
+            <span className="mx-auto grid size-14 place-items-center rounded-xl border-2 border-black bg-zinc-200 text-zinc-950 shadow-[4px_4px_0px_#000]">
+              <Check className="size-7" />
+            </span>
+            <DialogHeader className="mt-5 text-center">
+              <DialogTitle className="font-flow-display text-4xl text-white drop-shadow-[3px_3px_0px_#000]">
+                Successfully Deployed
+              </DialogTitle>
+              <DialogDescription className="mx-auto max-w-sm text-xs font-bold uppercase tracking-wider text-zinc-400">
+                Your form is live. Share this link with respondents and start collecting answers.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="px-6 pb-6 pt-5">
+            <div className="rounded-xl border-2 border-black bg-zinc-900 p-4 shadow-[4px_4px_0px_#000]">
+              <p className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                Share Link
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Input
+                  className="h-12 rounded-lg border-2 border-black bg-zinc-950 text-xs font-bold text-zinc-200 shadow-[2px_2px_0px_#000] focus-visible:border-zinc-400 focus-visible:ring-0"
+                  readOnly
+                  value={currentShareUrl}
+                />
+                <Button
+                  className="h-12 rounded-lg border-2 border-black bg-zinc-200 px-5 text-xs font-black uppercase tracking-wider text-zinc-950 shadow-[3px_3px_0px_#000] hover:bg-white active:scale-95"
+                  onClick={() => {
+                    void copyShareUrl(currentShareUrl).then((copied) => {
+                      if (!copied) return;
+                      setDeployCopied(true);
+                      setTimeout(() => setDeployCopied(false), 2000);
+                    });
+                  }}
+                  type="button"
+                >
+                  <Copy className="size-4" />
+                  {deployCopied ? "Copied" : "Copy"}
+                </Button>
+              </div>
+            </div>
+
+            <DialogFooter className="mt-6 grid gap-3 sm:grid-cols-3 sm:justify-stretch">
+              <Button
+                asChild
+                className="h-11 rounded-lg border-2 border-black bg-zinc-200 text-xs font-black uppercase tracking-wider text-zinc-950 shadow-[3px_3px_0px_#000] hover:bg-white active:scale-95"
+              >
+                <Link href={`/f/${slug}`} target="_blank">
+                  <Eye className="size-4" />
+                  Open
+                </Link>
+              </Button>
+              <Button
+                asChild
+                className="h-11 rounded-lg border-2 border-black bg-zinc-900 text-xs font-black uppercase tracking-wider text-zinc-200 shadow-[3px_3px_0px_#000] hover:bg-zinc-800 active:scale-95"
+              >
+                <Link href={`/forms/${formId}/results`}>
+                  <BarChart3 className="size-4" />
+                  Results
+                </Link>
+              </Button>
+              <DialogClose asChild>
+                <Button
+                  className="h-11 rounded-lg border-2 border-black bg-zinc-950 text-xs font-black uppercase tracking-wider text-zinc-300 shadow-[3px_3px_0px_#000] hover:bg-zinc-900 active:scale-95"
+                  type="button"
+                >
+                  Continue
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <section className="grid min-h-[calc(100vh-80px)] lg:grid-cols-[320px_minmax(460px,1fr)_400px]">
         <aside className="flex flex-col border-r-2 border-black bg-zinc-950">

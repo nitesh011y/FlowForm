@@ -520,14 +520,12 @@ export default function Home() {
 
         <div className="mt-16 grid items-stretch gap-8 lg:grid-cols-3 max-w-4xl mx-auto">
           {tiers.map((tier) => (
-            <Link
-              aria-label={`Select ${tier.label}`}
-              className={`group relative rounded-xl border-2 bg-zinc-900/40 p-8 text-center flex flex-col justify-between transition-all duration-300 hover:scale-102 hover:-rotate-1 active:scale-[0.99] cursor-pointer ${
+            <article
+              className={`group relative rounded-xl border-2 bg-zinc-900/40 p-8 text-center flex flex-col justify-between transition-all duration-300 hover:scale-102 hover:-rotate-1 ${
                 tier.featured
                   ? "border-black bg-zinc-900 shadow-[8px_8px_0px_#000] scale-[1.02]"
                   : "border-black shadow-[6px_6px_0px_#18181b]"
               }`}
-              href={tier.href}
               key={tier.label}
             >
               {tier.featured ? (
@@ -554,7 +552,8 @@ export default function Home() {
                 </ul>
               </div>
               
-              <span
+              <button
+                type="button"
                 className={`mt-8 inline-flex h-11 w-full items-center justify-center rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-200 border-2 border-black ${
                   tier.featured
                     ? "bg-zinc-200 text-zinc-950 shadow-[3px_3px_0px_#000] group-hover:bg-white"
@@ -562,8 +561,8 @@ export default function Home() {
                 }`}
               >
                 {tier.cta}
-              </span>
-            </Link>
+              </button>
+            </article>
           ))}
         </div>
       </section>

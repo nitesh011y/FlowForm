@@ -2,12 +2,13 @@
 
 import type { RouterOutputs } from "@repo/trpc/client";
 import Link from "next/link";
-import type React from "react";
+import { useState, type ReactNode } from "react";
 import {
   ArrowLeft,
   BarChart3,
   Bell,
   CalendarDays,
+  Copy,
   Download,
   ExternalLink,
   Eye,
@@ -43,11 +44,32 @@ import { trpc } from "~/trpc/client";
 
 type FormResponse = RouterOutputs["responses"]["listByForm"][number];
 type SummaryQuestion = RouterOutputs["responses"]["summary"]["questions"][number];
+type ResultsTab = "analytics" | "responses" | "fields" | "settings";
 
 // Cool Cartoon Noir monochromatic shades
 const chartColors = ["#f4f4f5", "#e4e4e7", "#d4d4d8", "#a1a1aa", "#71717a", "#52525b"];
 
+const tabMeta: Record<ResultsTab, { title: string; copy: string }> = {
+  analytics: {
+    title: "Campaign Analytics",
+    copy: "Real-time submission reports and respondent completion metrics.",
+  },
+  responses: {
+    title: "Response Ledger",
+    copy: "Inspect every submission, answer count, timestamp, and quick answer preview.",
+  },
+  fields: {
+    title: "Field Performance",
+    copy: "Review answer coverage, completion rates, field types, and strongest values.",
+  },
+  settings: {
+    title: "Form Settings",
+    copy: "Check publishing state, visibility, share settings, and operational details.",
+  },
+};
+
 export function ResultsClient({ formId }: { formId: string }) {
+  const [activeTab, setActiveTab] = useState<ResultsTab>("analytics");
   const formQuery = trpc.forms.byId.useQuery({ formId });
   const summaryQuery = trpc.responses.summary.useQuery({ formId });
   const responsesQuery = trpc.responses.listByForm.useQuery({ formId });
@@ -128,6 +150,9 @@ export function ResultsClient({ formId }: { formId: string }) {
   const performanceRows = buildQuestionPerformance(summary.questions, totalResponses);
   const dateRange = buildDateRangeLabel(responses);
   const responseDelta = totalResponses ? `+${Math.max(8, Math.min(42, totalResponses * 3))}%` : "0%";
+  const activeMeta = tabMeta[activeTab];
+  const publicFormUrl =
+    typeof window === "undefined" ? `/f/${form.slug}` : `${window.location.origin}/f/${form.slug}`;
 
   return (
     <main className="theme-flowform-kingdom min-h-screen overflow-hidden text-zinc-200 selection:bg-zinc-800 selection:text-white">
@@ -185,10 +210,30 @@ export function ResultsClient({ formId }: { formId: string }) {
           </div>
 
           <nav className="space-y-1.5 px-3 py-6 text-xs font-semibold text-zinc-400">
-            <SidebarItem icon={<BarChart3 />} label="Analytics" active />
-            <SidebarItem icon={<MessageSquareText />} label="Responses" />
-            <SidebarItem icon={<ScrollText />} label="Fields" />
-            <SidebarItem icon={<Settings />} label="Settings" />
+            <SidebarItem
+              active={activeTab === "analytics"}
+              icon={<BarChart3 />}
+              label="Analytics"
+              onClick={() => setActiveTab("analytics")}
+            />
+            <SidebarItem
+              active={activeTab === "responses"}
+              icon={<MessageSquareText />}
+              label="Responses"
+              onClick={() => setActiveTab("responses")}
+            />
+            <SidebarItem
+              active={activeTab === "fields"}
+              icon={<ScrollText />}
+              label="Fields"
+              onClick={() => setActiveTab("fields")}
+            />
+            <SidebarItem
+              active={activeTab === "settings"}
+              icon={<Settings />}
+              label="Settings"
+              onClick={() => setActiveTab("settings")}
+            />
           </nav>
 
           <div className="mt-auto p-4">
@@ -206,6 +251,33 @@ export function ResultsClient({ formId }: { formId: string }) {
 
         <section className="relative z-10 flex-1 px-4 py-8 sm:px-6 xl:px-8">
           <div className="mx-auto max-w-[1400px]">
+            <nav className="mb-6 grid grid-cols-2 gap-2 text-xs font-black uppercase tracking-wider lg:hidden">
+              <SidebarItem
+                active={activeTab === "analytics"}
+                icon={<BarChart3 />}
+                label="Analytics"
+                onClick={() => setActiveTab("analytics")}
+              />
+              <SidebarItem
+                active={activeTab === "responses"}
+                icon={<MessageSquareText />}
+                label="Responses"
+                onClick={() => setActiveTab("responses")}
+              />
+              <SidebarItem
+                active={activeTab === "fields"}
+                icon={<ScrollText />}
+                label="Fields"
+                onClick={() => setActiveTab("fields")}
+              />
+              <SidebarItem
+                active={activeTab === "settings"}
+                icon={<Settings />}
+                label="Settings"
+                onClick={() => setActiveTab("settings")}
+              />
+            </nav>
+
             <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
               <div>
                 <Button asChild variant="ghost" className="mb-4 -ml-3 text-zinc-405 hover:bg-zinc-900 hover:text-white text-xs h-8">
@@ -216,7 +288,7 @@ export function ResultsClient({ formId }: { formId: string }) {
                 </Button>
                 <div className="flex flex-wrap items-center gap-3">
                   <h1 className="text-3xl font-flow-display tracking-tight text-white drop-shadow-[2.5px_2.5px_0px_#000]">
-                    Campaign Analytics
+                    {activeMeta.title}
                   </h1>
                   <Badge className="border-2 border-black bg-zinc-200 text-zinc-950 font-black uppercase tracking-wider shadow-[1.5px_1.5px_0_#000]" variant="outline">
                     {form.status}
@@ -226,7 +298,7 @@ export function ResultsClient({ formId }: { formId: string }) {
                   </Badge>
                 </div>
                 <p className="mt-2 text-xs text-zinc-400">
-                  Real-time submission reports and respondent completion metrics.
+                  {activeMeta.copy}
                 </p>
                 <p className="mt-1 text-xs text-zinc-500 font-semibold uppercase tracking-wider">
                   Title: {form.title}
@@ -256,6 +328,8 @@ export function ResultsClient({ formId }: { formId: string }) {
               </div>
             </div>
 
+            {activeTab === "analytics" ? (
+              <>
             <section className="mt-8 grid gap-5 md:grid-cols-2 2xl:grid-cols-4">
               <MetricCard
                 delta={responseDelta}
@@ -391,7 +465,10 @@ export function ResultsClient({ formId }: { formId: string }) {
                 </div>
               </WarPanel>
             </section>
+              </>
+            ) : null}
 
+            {activeTab === "fields" ? (
             <section className="mt-8 grid gap-5 2xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
               <WarPanel
                 action={
@@ -499,7 +576,9 @@ export function ResultsClient({ formId }: { formId: string }) {
                 </div>
               </WarPanel>
             </section>
+            ) : null}
 
+            {activeTab === "responses" ? (
             <section className="mt-8">
               <WarPanel subtitle="Detailed submission database logs" title="Response Ledger">
                 {responses.length ? (
@@ -543,6 +622,77 @@ export function ResultsClient({ formId }: { formId: string }) {
                 )}
               </WarPanel>
             </section>
+            ) : null}
+
+            {activeTab === "settings" ? (
+              <section className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.55fr)]">
+                <WarPanel subtitle="Publishing controls and public access state" title="Deployment Settings">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <SettingCard label="Status" value={prettyLabel(form.status)} />
+                    <SettingCard label="Visibility" value={prettyLabel(form.visibility)} />
+                    <SettingCard label="Questions" value={formatNumber(summary.questionCount)} />
+                    <SettingCard label="Responses" value={formatNumber(totalResponses)} />
+                  </div>
+
+                  <div className="mt-6 rounded-xl border-2 border-black bg-zinc-950 p-5 shadow-[4px_4px_0px_#000]">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                      Share URL
+                    </p>
+                    <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                      <div className="min-h-11 flex-1 overflow-hidden rounded-lg border-2 border-black bg-zinc-900 px-4 py-3 text-xs font-bold text-zinc-300 shadow-[2px_2px_0px_#000]">
+                        {form.status === "published"
+                          ? publicFormUrl
+                          : "Publish this form to create a live respondent link."}
+                      </div>
+                      {form.status === "published" ? (
+                        <Button
+                          className="h-11 rounded-lg border-2 border-black bg-zinc-200 px-5 text-xs font-black uppercase tracking-wider text-zinc-950 shadow-[3px_3px_0px_#000] hover:bg-white active:scale-95"
+                          onClick={() =>
+                            void navigator.clipboard.writeText(publicFormUrl)
+                          }
+                          type="button"
+                        >
+                          <Copy className="size-4" />
+                          Copy
+                        </Button>
+                      ) : null}
+                    </div>
+                  </div>
+                </WarPanel>
+
+                <WarPanel subtitle="Creator workflow shortcuts" title="Actions">
+                  <div className="grid gap-3">
+                    <Button asChild className="h-11 rounded-lg bg-zinc-200 text-zinc-950 border-2 border-black font-black uppercase tracking-wider text-xs shadow-[4px_4px_0px_#000] hover:bg-white active:scale-95">
+                      <Link href={`/forms/${formId}/builder`}>
+                        <ExternalLink className="size-4 mr-1.5" />
+                        Edit Builder
+                      </Link>
+                    </Button>
+                    {form.status === "published" ? (
+                      <Button asChild className="h-11 rounded-lg border-2 border-black bg-zinc-900 text-zinc-250 hover:bg-zinc-800 text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_#000] active:scale-95">
+                        <Link href={`/f/${form.slug}`} target="_blank">
+                          <Eye className="size-4 mr-1.5" />
+                          View Live Form
+                        </Link>
+                      </Button>
+                    ) : null}
+                    <Button
+                      className="h-11 rounded-lg border-2 border-black bg-zinc-950 text-xs font-black uppercase tracking-wider text-zinc-300 shadow-[3px_3px_0px_#000] hover:bg-zinc-900 active:scale-95"
+                      disabled={exportCsvMutation.isPending || !responses.length}
+                      onClick={() => void exportCsv()}
+                      type="button"
+                    >
+                      {exportCsvMutation.isPending ? (
+                        <Loader2 className="size-4 animate-spin mr-1.5" />
+                      ) : (
+                        <Download className="size-4 mr-1.5" />
+                      )}
+                      Export Responses
+                    </Button>
+                  </div>
+                </WarPanel>
+              </section>
+            ) : null}
           </div>
         </section>
       </div>
@@ -550,7 +700,7 @@ export function ResultsClient({ formId }: { formId: string }) {
   );
 }
 
-function IconButton({ children, label }: { children: React.ReactNode; label: string }) {
+function IconButton({ children, label }: { children: ReactNode; label: string }) {
   return (
     <button
       aria-label={label}
@@ -566,21 +716,35 @@ function SidebarItem({
   active,
   icon,
   label,
+  onClick,
 }: {
   active?: boolean;
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
+  onClick: () => void;
 }) {
   return (
-    <div
+    <button
+      aria-pressed={active}
       className={
         active
-          ? "flex items-center gap-3 rounded-lg bg-zinc-200 text-zinc-950 border-2 border-black px-4 py-2.5 font-black uppercase tracking-wider shadow-[2.5px_2.5px_0px_#000] hover:scale-102 hover:-rotate-1 active:scale-95 transition-all [&_svg]:size-4.5"
-          : "flex items-center gap-3 rounded-lg px-4 py-2.5 text-zinc-405 transition hover:bg-zinc-900 hover:text-zinc-150 [&_svg]:size-4.5 cursor-pointer font-bold uppercase tracking-wider"
+          ? "flex w-full items-center gap-3 rounded-lg bg-zinc-200 text-zinc-950 border-2 border-black px-4 py-2.5 text-left font-black uppercase tracking-wider shadow-[2.5px_2.5px_0px_#000] hover:scale-102 hover:-rotate-1 active:scale-95 transition-all [&_svg]:size-4.5"
+          : "flex w-full items-center gap-3 rounded-lg border-2 border-transparent px-4 py-2.5 text-left text-zinc-405 transition hover:bg-zinc-900 hover:text-zinc-150 [&_svg]:size-4.5 cursor-pointer font-bold uppercase tracking-wider"
       }
+      onClick={onClick}
+      type="button"
     >
       {icon}
       {label}
+    </button>
+  );
+}
+
+function SettingCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl border-2 border-black bg-zinc-950 p-5 shadow-[4px_4px_0px_#000]">
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">{label}</p>
+      <p className="mt-3 text-2xl font-black text-zinc-100">{value}</p>
     </div>
   );
 }
@@ -593,7 +757,7 @@ function MetricCard({
   value,
 }: {
   delta: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   sublabel: string;
   value: string | number;
@@ -624,8 +788,8 @@ function WarPanel({
   subtitle,
   title,
 }: {
-  action?: React.ReactNode;
-  children: React.ReactNode;
+  action?: ReactNode;
+  children: ReactNode;
   subtitle: string;
   title: string;
 }) {

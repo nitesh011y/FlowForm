@@ -138,14 +138,12 @@ export default function PricingPage() {
 
         <div className="mt-16 grid items-stretch gap-8 lg:grid-cols-3 max-w-5xl mx-auto">
           {plans.map((plan) => (
-            <Link
-              aria-label={`Select ${plan.label}`}
-              className={`group relative flex rounded-xl border-2 bg-zinc-900/40 p-8 shadow-[4px_4px_0px_#18181b] transition-all duration-300 hover:scale-102 hover:-rotate-1 active:scale-[0.99] cursor-pointer ${
+            <article
+              className={`group relative flex rounded-xl border-2 bg-zinc-900/40 p-8 shadow-[4px_4px_0px_#18181b] transition-all duration-300 hover:scale-102 hover:-rotate-1 ${
                 plan.featured
                   ? "border-black bg-zinc-900 shadow-[8px_8px_0px_#000] scale-[1.02]"
                   : "border-black shadow-[6px_6px_0px_#18181b]"
               }`}
-              href={plan.href}
               key={plan.label}
             >
               <div className="flex w-full flex-col justify-between">
@@ -193,7 +191,8 @@ export default function PricingPage() {
                   </ul>
                 </div>
 
-                <span
+                <button
+                  type="button"
                   className={`mt-8 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-200 border-2 border-black ${
                     plan.featured
                       ? "bg-zinc-200 text-zinc-950 shadow-[3px_3px_0px_#000] group-hover:bg-white"
@@ -202,9 +201,9 @@ export default function PricingPage() {
                 >
                   {plan.cta}
                   <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
-                </span>
+                </button>
               </div>
-            </Link>
+            </article>
           ))}
         </div>
       </section>
