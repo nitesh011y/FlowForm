@@ -17,10 +17,14 @@ const openApiDocument = generateOpenApiDocument(serverRouter, {
   baseUrl: env.BASE_URL.concat("/api"),
 });
 
+const configuredOrigins = env.WEB_APP_URL.split(",")
+  .map((origin) => origin.trim().replace(/\/$/, ""))
+  .filter(Boolean);
+
 const allowedOrigins = new Set([
   "http://localhost:3000",
   "http://127.0.0.1:3000",
-  env.WEB_APP_URL.replace(/\/$/, ""),
+  ...configuredOrigins,
 ]);
 const isProduction = env.NODE_ENV === "prod" || env.NODE_ENV === "production";
 
