@@ -12,12 +12,13 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { trpc } from "~/trpc/client";
 
-type NavKey = "home" | "explore" | "pricing" | "dashboard";
+type NavKey = "home" | "explore" | "pricing" | "docs" | "dashboard";
 
 const navItems: Array<{ href: string; key: NavKey; label: string }> = [
   { href: "/", key: "home", label: "Home" },
   { href: "/explore", key: "explore", label: "Explore" },
   { href: "/pricing", key: "pricing", label: "Pricing" },
+  //{ href: "/api-docs", key: "docs", label: "API Docs" },
   { href: "/dashboard", key: "dashboard", label: "Dashboard" },
 ];
 

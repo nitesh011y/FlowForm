@@ -230,6 +230,7 @@ export function BuilderClient({ formId }: { formId: string }) {
   const [deployDialogOpen, setDeployDialogOpen] = useState(false);
   const [deployShareUrl, setDeployShareUrl] = useState("");
   const [deployCopied, setDeployCopied] = useState(false);
+  const [deployError, setDeployError] = useState<string | null>(null);
   const [hydratedFormId, setHydratedFormId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -307,6 +308,7 @@ export function BuilderClient({ formId }: { formId: string }) {
   }
 
   function updateQuestion(clientId: string, patch: Partial<DraftQuestion>) {
+    setDeployError(null);
     setQuestions((current) =>
       current.map((question) => {
         if (question.clientId !== clientId) return question;
@@ -333,12 +335,14 @@ export function BuilderClient({ formId }: { formId: string }) {
   }
 
   function addQuestion(type: QuestionType = "short_text") {
+    setDeployError(null);
     const question = newQuestion(type, questions.length);
     setQuestions((current) => [...current, question]);
     setSelectedId(question.clientId);
   }
 
   function removeQuestion(clientId: string) {
+    setDeployError(null);
     setQuestions((current) => {
       const next = current.filter((question) => question.clientId !== clientId);
       if (!next.length) {
@@ -473,21 +477,45 @@ export function BuilderClient({ formId }: { formId: string }) {
     setStatus(published.status);
     setDeployShareUrl(getShareUrl(published.slug));
     setDeployCopied(false);
+    setDeployError(null);
     setDeployDialogOpen(true);
     await utils.forms.byId.invalidate({ formId });
     await utils.forms.list.invalidate();
   }
 
+  function getDeployValidationError() {
+    if (!title.trim()) return "Add a form title before deploying.";
+    const missingTitleIndex = questions.findIndex((question) => !question.title.trim());
+    if (missingTitleIndex >= 0) return `Question ${missingTitleIndex + 1} needs a title.`;
+    return null;
+  }
+
+  function getMutationErrorMessage(error: unknown) {
+    if (error instanceof Error) return error.message;
+    return "Deploy failed. Please check your form and try again.";
+  }
+
   async function deployForm() {
-    if (status === "published") {
-      const saved = await saveBuilder();
-      setDeployShareUrl(getShareUrl(saved.slug));
-      setDeployCopied(false);
-      setDeployDialogOpen(true);
+    const validationError = getDeployValidationError();
+    if (validationError) {
+      setDeployError(validationError);
       return;
     }
 
-    await publish();
+    try {
+      setDeployError(null);
+      if (status === "published") {
+        const saved = await saveBuilder();
+        setDeployShareUrl(getShareUrl(saved.slug));
+        setDeployCopied(false);
+        setDeployDialogOpen(true);
+        return;
+      }
+
+      await publish();
+    } catch (error) {
+      setDeployError(getMutationErrorMessage(error));
+    }
   }
 
   async function unpublish() {
@@ -499,7 +527,6 @@ export function BuilderClient({ formId }: { formId: string }) {
 
   const isWorking =
     saveMutation.isPending || publishMutation.isPending || unpublishMutation.isPending;
-  const canSave = title.trim().length > 0 && questions.every((question) => question.title.trim());
 
   if (formQuery.isLoading) {
     return (
@@ -554,7 +581,7 @@ export function BuilderClient({ formId }: { formId: string }) {
   return (
     <main className="theme-flowform-kingdom min-h-screen overflow-hidden text-zinc-200 selection:bg-zinc-800 selection:text-white">
       <header className="sticky top-0 z-50 border-b-2 border-black bg-zinc-950/80 backdrop-blur-md shadow-[3px_3px_0px_#000]">
-        <div className="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6">
+        <div className="relative flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-4 xl:gap-6">
             <Link className="font-flow-display text-2xl font-black uppercase tracking-tight text-white drop-shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all inline-block" href="/dashboard">
               FlowForm
@@ -729,12 +756,17 @@ export function BuilderClient({ formId }: { formId: string }) {
             </Button>
             <Button
               className="h-12 rounded-lg bg-zinc-200 text-zinc-950 border-2 border-black font-black uppercase tracking-wider text-xs shadow-[4px_4px_0px_#000] hover:bg-white active:scale-95 transition-all hover:scale-[1.02] hover:-rotate-1 sm:h-14 sm:px-8"
-              disabled={!canSave || isWorking}
+              disabled={isWorking}
               onClick={() => void deployForm()}
             >
-              {publishMutation.isPending ? <Loader2 className="animate-spin" /> : <Send />}
+              {isWorking ? <Loader2 className="animate-spin" /> : <Send />}
               Deploy
             </Button>
+            {deployError ? (
+              <div className="absolute right-4 top-[calc(100%+8px)] max-w-[min(92vw,440px)] rounded-lg border-2 border-black bg-rose-950 px-4 py-3 text-xs font-black uppercase tracking-wider text-rose-100 shadow-[4px_4px_0px_#000] sm:right-6">
+                {deployError}
+              </div>
+            ) : null}
           </div>
         </div>
       </header>
@@ -821,8 +853,8 @@ export function BuilderClient({ formId }: { formId: string }) {
         </DialogContent>
       </Dialog>
 
-      <section className="grid min-h-[calc(100vh-80px)] lg:grid-cols-[320px_minmax(460px,1fr)_400px]">
-        <aside className="flex flex-col border-r-2 border-black bg-zinc-950">
+      <section className="grid h-[calc(100vh-80px)] min-h-0 overflow-hidden lg:grid-cols-[320px_minmax(460px,1fr)_400px]">
+        <aside className="flex min-h-0 flex-col border-r-2 border-black bg-zinc-950">
           <div className="flex items-center gap-4 border-b-2 border-black px-5 py-6">
             <span className="grid size-12 place-items-center rounded-lg border-2 border-black bg-zinc-800 text-zinc-200 shadow-[2px_2px_0px_#000]">
               <Hammer className="size-6" />
@@ -897,7 +929,7 @@ export function BuilderClient({ formId }: { formId: string }) {
           </div>
         </aside>
 
-        <section className="overflow-y-auto bg-zinc-900 px-6 py-10">
+        <section className="min-h-0 overflow-y-auto bg-zinc-900 px-6 py-10">
           <div className="mx-auto max-w-4xl">
             <div className="mb-10">
               <div className="flex items-end justify-between">
@@ -927,7 +959,10 @@ export function BuilderClient({ formId }: { formId: string }) {
                 <div className="border-b-2 border-black pb-6">
                   <Input
                     className="h-auto rounded-none border-0 bg-transparent px-0 text-3xl font-black text-zinc-950 shadow-none focus-visible:ring-0 focus-visible:border-0"
-                    onChange={(event) => setTitle(event.target.value)}
+                    onChange={(event) => {
+                      setDeployError(null);
+                      setTitle(event.target.value);
+                    }}
                     value={title}
                   />
                   <Textarea
@@ -940,34 +975,20 @@ export function BuilderClient({ formId }: { formId: string }) {
 
                 <div className="mt-10 space-y-8">
                   {questions.map((question, index) => (
-                    <article
-                      className={`cursor-pointer border-2 p-6 transition-all rounded-none ${
-                        selectedQuestion?.clientId === question.clientId
-                          ? "border-black bg-zinc-50 shadow-[4px_4px_0px_#000] scale-[1.01]"
-                          : "border-dashed border-zinc-300 bg-white opacity-60 hover:opacity-90 hover:scale-[1.005]"
-                      }`}
+                    <QuestionEditorCard
+                      isSelected={selectedQuestion?.clientId === question.clientId}
                       key={question.clientId}
-                      onClick={() => setSelectedId(question.clientId)}
-                    >
-                      <div className="mb-4 flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500">Question {index + 1}</p>
-                          <h3 className="mt-1 text-xl font-bold leading-tight text-zinc-950">
-                            {question.title}
-                            {question.required ? <span className="text-red-600"> *</span> : null}
-                          </h3>
-                          {question.description ? (
-                            <p className="mt-2 text-xs font-semibold text-zinc-500">
-                              {question.description}
-                            </p>
-                          ) : null}
-                        </div>
-                        <Badge className="border-2 border-black bg-zinc-900 text-zinc-200 font-bold uppercase text-[9px] shadow-[1.5px_1.5px_0_#000]" variant="outline">
-                          {labelForType(question.type)}
-                        </Badge>
-                      </div>
-                      <QuestionPreview question={question} />
-                    </article>
+                      onAddOption={addOption}
+                      onMove={moveQuestion}
+                      onRemove={removeQuestion}
+                      onRemoveOption={removeOption}
+                      onSelect={setSelectedId}
+                      onUpdateOption={updateOption}
+                      onUpdateQuestion={updateQuestion}
+                      question={question}
+                      questionIndex={index}
+                      totalQuestions={questions.length}
+                    />
                   ))}
                 </div>
               </div>
@@ -979,7 +1000,7 @@ export function BuilderClient({ formId }: { formId: string }) {
           </div>
         </section>
 
-        <aside className="flex flex-col border-l-2 border-black bg-zinc-950">
+        <aside className="flex min-h-0 flex-col border-l-2 border-black bg-zinc-950">
           <div className="flex items-center gap-4 border-b-2 border-black px-6 py-5">
             <span className="grid size-10 place-items-center text-zinc-200 border-2 border-black bg-zinc-800 rounded-lg shadow-[2px_2px_0px_#000]">
               <Settings className="size-5" />
@@ -1275,6 +1296,251 @@ export function BuilderClient({ formId }: { formId: string }) {
         </aside>
       </section>
     </main>
+  );
+}
+
+function QuestionEditorCard({
+  isSelected,
+  onAddOption,
+  onMove,
+  onRemove,
+  onRemoveOption,
+  onSelect,
+  onUpdateOption,
+  onUpdateQuestion,
+  question,
+  questionIndex,
+  totalQuestions,
+}: {
+  isSelected: boolean;
+  onAddOption: (clientId: string) => void;
+  onMove: (clientId: string, direction: -1 | 1) => void;
+  onRemove: (clientId: string) => void;
+  onRemoveOption: (clientId: string, index: number) => void;
+  onSelect: (clientId: string) => void;
+  onUpdateOption: (clientId: string, index: number, label: string) => void;
+  onUpdateQuestion: (clientId: string, patch: Partial<DraftQuestion>) => void;
+  question: DraftQuestion;
+  questionIndex: number;
+  totalQuestions: number;
+}) {
+  const Icon = iconForType(question.type);
+  const canMoveUp = questionIndex > 0;
+  const canMoveDown = questionIndex < totalQuestions - 1;
+
+  return (
+    <article
+      className={`border-2 p-5 transition-all rounded-none ${
+        isSelected
+          ? "border-black bg-zinc-50 shadow-[4px_4px_0px_#000] scale-[1.01]"
+          : "border-dashed border-zinc-300 bg-white hover:bg-zinc-50 hover:shadow-[3px_3px_0px_#000]"
+      }`}
+      onClick={() => onSelect(question.clientId)}
+    >
+      <div className="mb-5 flex flex-col gap-3 border-b-2 border-zinc-200 pb-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg border-2 border-black bg-zinc-900 text-zinc-100 shadow-[2px_2px_0px_#000]">
+            <Icon className="size-4.5" />
+          </span>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+              Question {questionIndex + 1}
+            </p>
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-950">
+              {labelForType(question.type)}
+            </p>
+          </div>
+        </div>
+
+        <Select
+          onValueChange={(value) =>
+            onUpdateQuestion(question.clientId, { type: value as QuestionType })
+          }
+          value={question.type}
+        >
+          <SelectTrigger
+            className="h-11 w-full rounded-none border-2 border-black bg-white text-xs font-black uppercase tracking-wider text-zinc-950 shadow-[2px_2px_0px_#000] lg:w-56"
+            onClick={(event) => {
+              event.stopPropagation();
+              onSelect(question.clientId);
+            }}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {questionTypes.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-4">
+        <Textarea
+          className="min-h-14 resize-none rounded-none border-0 border-b-2 border-zinc-300 bg-transparent px-0 text-xl font-black text-zinc-950 shadow-none focus-visible:border-black focus-visible:ring-0"
+          onChange={(event) =>
+            onUpdateQuestion(question.clientId, { title: event.target.value })
+          }
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect(question.clientId);
+          }}
+          onFocus={() => onSelect(question.clientId)}
+          placeholder="Question"
+          value={question.title}
+        />
+        <Input
+          className="h-10 rounded-none border-0 border-b-2 border-dashed border-zinc-300 bg-transparent px-0 text-xs font-semibold text-zinc-600 shadow-none focus-visible:border-black focus-visible:ring-0"
+          onChange={(event) =>
+            onUpdateQuestion(question.clientId, {
+              description: event.target.value || null,
+            })
+          }
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect(question.clientId);
+          }}
+          onFocus={() => onSelect(question.clientId)}
+          placeholder="Description or help text"
+          value={question.description ?? ""}
+        />
+
+        {isOptionType(question.type) ? (
+          <div className="space-y-3 pt-2">
+            {question.options.map((option, optionIndex) => (
+              <div className="flex items-center gap-3" key={`${question.clientId}-${optionIndex}`}>
+                <span
+                  className={`grid size-5 shrink-0 place-items-center border-2 border-black ${
+                    question.type === "multiple_choice" ? "rounded-none" : "rounded-full"
+                  }`}
+                >
+                  {question.type === "dropdown" ? (
+                    <span className="text-[10px] font-black text-zinc-950">{optionIndex + 1}</span>
+                  ) : null}
+                </span>
+                <Input
+                  className="h-10 rounded-none border-0 border-b-2 border-zinc-300 bg-transparent px-0 text-sm font-semibold text-zinc-900 shadow-none focus-visible:border-black focus-visible:ring-0"
+                  onChange={(event) =>
+                    onUpdateOption(question.clientId, optionIndex, event.target.value)
+                  }
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onSelect(question.clientId);
+                  }}
+                  onFocus={() => onSelect(question.clientId)}
+                  placeholder={`Option ${optionIndex + 1}`}
+                  value={option.label}
+                />
+                <Button
+                  className="size-9 shrink-0 rounded-none border-2 border-transparent text-zinc-500 hover:border-black hover:bg-zinc-100 hover:text-zinc-950"
+                  disabled={question.options.length <= 1}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onRemoveOption(question.clientId, optionIndex);
+                  }}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>
+            ))}
+
+            <button
+              className="ml-8 inline-flex items-center gap-2 rounded-none border-b-2 border-dashed border-zinc-400 pb-1 text-xs font-black uppercase tracking-wider text-zinc-600 transition hover:border-black hover:text-zinc-950"
+              onClick={(event) => {
+                event.stopPropagation();
+                onAddOption(question.clientId);
+              }}
+              type="button"
+            >
+              <Plus className="size-4" />
+              Add option
+            </button>
+          </div>
+        ) : (
+          <div className="pt-2">
+            <QuestionPreview question={question} />
+            {["short_text", "long_text", "email", "number", "date"].includes(question.type) ? (
+              <Input
+                className="mt-3 h-10 rounded-none border-0 border-b-2 border-dashed border-zinc-300 bg-transparent px-0 text-xs font-semibold text-zinc-600 shadow-none focus-visible:border-black focus-visible:ring-0"
+                onChange={(event) =>
+                  onUpdateQuestion(question.clientId, {
+                    placeholder: event.target.value || null,
+                  })
+                }
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onSelect(question.clientId);
+                }}
+                onFocus={() => onSelect(question.clientId)}
+                placeholder="Placeholder text"
+                value={question.placeholder ?? ""}
+              />
+            ) : null}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-6 flex flex-col gap-3 border-t-2 border-zinc-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <Button
+            className="size-9 rounded-none border-2 border-black bg-white text-zinc-950 shadow-[2px_2px_0px_#000] hover:bg-zinc-100 disabled:opacity-40"
+            disabled={!canMoveUp}
+            onClick={(event) => {
+              event.stopPropagation();
+              onMove(question.clientId, -1);
+            }}
+            size="icon"
+            type="button"
+            variant="outline"
+          >
+            <ArrowUp className="size-4" />
+          </Button>
+          <Button
+            className="size-9 rounded-none border-2 border-black bg-white text-zinc-950 shadow-[2px_2px_0px_#000] hover:bg-zinc-100 disabled:opacity-40"
+            disabled={!canMoveDown}
+            onClick={(event) => {
+              event.stopPropagation();
+              onMove(question.clientId, 1);
+            }}
+            size="icon"
+            type="button"
+            variant="outline"
+          >
+            <ArrowDown className="size-4" />
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <label
+            className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-zinc-700"
+            onClick={(event) => event.stopPropagation()}
+          >
+            Required
+            <Switch
+              checked={question.required}
+              onCheckedChange={(required) => onUpdateQuestion(question.clientId, { required })}
+            />
+          </label>
+          <Button
+            className="h-9 rounded-none border-2 border-rose-700 bg-white px-3 text-xs font-black uppercase tracking-wider text-rose-700 shadow-[2px_2px_0px_#000] hover:bg-rose-50"
+            onClick={(event) => {
+              event.stopPropagation();
+              onRemove(question.clientId);
+            }}
+            type="button"
+            variant="outline"
+          >
+            <Trash2 className="size-4" />
+            Delete
+          </Button>
+        </div>
+      </div>
+    </article>
   );
 }
 

@@ -769,7 +769,7 @@ function MetricCard({
         <span className="grid size-11 place-items-center rounded-lg bg-zinc-800 text-zinc-200 border-2 border-black shadow-[2px_2px_0px_#000]">
           {icon}
         </span>
-        <span className="rounded-full bg-zinc-200 text-zinc-955 border-2 border-black px-3 py-0.5 text-xs font-black uppercase tracking-wider shadow-[1.5px_1.5px_0px_#000]">
+        <span className="rounded-full bg-black text-white border-2 border-zinc-200 px-3 py-0.5 text-xs font-black uppercase tracking-wider shadow-[1.5px_1.5px_0px_#52525b]">
           {delta}
         </span>
       </div>

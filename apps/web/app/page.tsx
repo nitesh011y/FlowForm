@@ -597,6 +597,7 @@ export default function Home() {
           <div className="flex flex-wrap gap-5 font-bold uppercase tracking-wider">
             <Link href="/pricing" className="hover:text-zinc-300">Pricing</Link>
             <Link href="/explore" className="hover:text-zinc-300">Explore</Link>
+            <Link href="/api-docs" className="hover:text-zinc-300">API Docs</Link>
             <Link href="/dashboard" className="hover:text-zinc-300">Dashboard</Link>
           </div>
         </div>

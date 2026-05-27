@@ -170,6 +170,10 @@ export function DashboardClient() {
   const [sortBy, setSortBy] = useState<SortKey>("updated-desc");
   const [copiedFormId, setCopiedFormId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DashboardForm | null>(null);
+  const [selectedFormIds, setSelectedFormIds] = useState<string[]>([]);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeletePending, setBulkDeletePending] = useState(false);
+  const [bulkDeleteError, setBulkDeleteError] = useState<string | null>(null);
 
   const createForm = trpc.forms.create.useMutation({
     async onSuccess(form) {
@@ -186,6 +190,7 @@ export function DashboardClient() {
       await utils.forms.publicList.invalidate();
     },
   });
+  const bulkRemoveForm = trpc.forms.remove.useMutation();
 
   async function handleLogout() {
     await logout.mutateAsync(null);
@@ -219,6 +224,52 @@ export function DashboardClient() {
 
     return sortForms(rows, sortBy);
   }, [filterBy, forms.data, query, sortBy]);
+
+  const visibleFormIds = visibleForms.map((form) => form.id);
+  const selectedVisibleCount = visibleFormIds.filter((id) => selectedFormIds.includes(id)).length;
+  const allVisibleSelected = visibleFormIds.length > 0 && selectedVisibleCount === visibleFormIds.length;
+  const selectedForms = (forms.data ?? []).filter((form) => selectedFormIds.includes(form.id));
+
+  function toggleFormSelection(formId: string) {
+    setSelectedFormIds((current) =>
+      current.includes(formId)
+        ? current.filter((id) => id !== formId)
+        : [...current, formId],
+    );
+  }
+
+  function toggleVisibleForms() {
+    const visibleSet = new Set(visibleFormIds);
+    setSelectedFormIds((current) => {
+      if (allVisibleSelected) return current.filter((id) => !visibleSet.has(id));
+      const next = new Set(current);
+      visibleFormIds.forEach((id) => next.add(id));
+      return Array.from(next);
+    });
+  }
+
+  async function deleteSelectedForms() {
+    const idsToDelete = selectedForms.map((form) => form.id);
+    if (!idsToDelete.length) return;
+
+    setBulkDeleteError(null);
+    setBulkDeletePending(true);
+
+    try {
+      for (const formId of idsToDelete) {
+        await bulkRemoveForm.mutateAsync({ formId });
+      }
+
+      setSelectedFormIds((current) => current.filter((id) => !idsToDelete.includes(id)));
+      setBulkDeleteOpen(false);
+      await utils.forms.list.invalidate();
+      await utils.forms.publicList.invalidate();
+    } catch (error) {
+      setBulkDeleteError(error instanceof Error ? error.message : "Unable to delete selected forms.");
+    } finally {
+      setBulkDeletePending(false);
+    }
+  }
 
   if (me.isLoading) return <DashboardLoading label="Checking your session" />;
   if (!me.data) return <AuthScreen />;
@@ -484,85 +535,169 @@ export function DashboardClient() {
                   <p className="max-w-md text-xs text-zinc-400">{forms.error.message}</p>
                 </div>
               ) : visibleForms.length ? (
-                <div className="divide-y-2 divide-black">
-                  {visibleForms.map((form, index) => (
-                    <article
-                      className="flow-dashboard-row flex flex-col gap-4 p-5 transition-all duration-200 xl:flex-row xl:items-center xl:justify-between"
-                      key={form.id}
-                      style={{ animationDelay: `${320 + index * 55}ms` }}
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate font-flow-display text-lg text-zinc-100">{form.title}</p>
-                        <p className="mt-1 truncate font-mono text-xs text-zinc-400 font-bold">/f/{form.slug}</p>
+                <div>
+                  <div className="border-b-2 border-black bg-zinc-900/85 p-5 shadow-[inset_0_-2px_0_#000]">
+                    <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                      <div>
+                        <p className="flex items-center gap-2 font-flow-display text-lg leading-none text-zinc-100 drop-shadow-[2px_2px_0px_#000]">
+                          <Trash2 className="size-4 text-rose-300" />
+                          Bulk Actions
+                        </p>
+                        <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+                          Select multiple forms, then delete them together.
+                        </p>
                       </div>
+                      <span className="w-fit rounded-lg border-2 border-black bg-zinc-200 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-950 shadow-[2px_2px_0px_#000]">
+                        {selectedForms.length} selected
+                      </span>
+                    </div>
 
-                      <div className="flex flex-wrap items-center gap-3 xl:ml-auto">
-                        <Badge className={statusBadge(form.status)} variant="outline">
-                          {form.status}
-                        </Badge>
-                        <Badge className={visibilityBadge(form.visibility)} variant="outline">
-                          {form.visibility}
-                        </Badge>
-                        <span className="text-xs text-zinc-405 font-medium">
-                          {form.updatedAt ? new Date(form.updatedAt).toLocaleDateString() : "Not updated"}
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <label className="flex w-fit cursor-pointer items-center gap-3 rounded-lg border-2 border-black bg-zinc-200 px-4 py-2.5 text-[11px] font-black uppercase tracking-wider text-zinc-950 shadow-[3px_3px_0px_#000] transition hover:bg-white active:scale-95">
+                        <input
+                          checked={allVisibleSelected}
+                          className="size-5 cursor-pointer accent-zinc-950"
+                          onChange={toggleVisibleForms}
+                          type="checkbox"
+                        />
+                        <span>Select all visible forms</span>
+                        <span className="rounded bg-zinc-950 px-2 py-0.5 text-[10px] text-zinc-100">
+                          {selectedVisibleCount}/{visibleForms.length}
                         </span>
-                      </div>
+                      </label>
 
-                      <div className="flex flex-wrap gap-2 xl:justify-end">
-                        <Button asChild size="sm" variant="outline" className="rounded-lg border-2 border-black bg-zinc-950 text-zinc-200 hover:bg-zinc-200 hover:text-zinc-950 shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all h-8 font-black uppercase text-[10px] tracking-wider">
-                          <Link href={`/forms/${form.id}/builder`}>
-                            <Pencil className="size-3 mr-1" />
-                            Builder
-                          </Link>
-                        </Button>
-                        <Button asChild size="sm" variant="outline" className="rounded-lg border-2 border-black bg-zinc-950 text-zinc-200 hover:bg-zinc-200 hover:text-zinc-950 shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all h-8 font-black uppercase text-[10px] tracking-wider">
-                          <Link href={`/forms/${form.id}/results`}>
-                            <BarChart3 className="size-3 mr-1" />
-                            Analytics
-                          </Link>
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="rounded-lg border-2 border-black bg-zinc-950 text-zinc-200 hover:bg-zinc-200 hover:text-zinc-950 shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all h-8 font-black uppercase text-[10px] tracking-wider"
-                          onClick={() => {
-                            const url = `${window.location.origin}/f/${form.slug}`;
-                            void navigator.clipboard.writeText(url);
-                            setCopiedFormId(form.id);
-                            setTimeout(() => setCopiedFormId(null), 2000);
-                          }}
-                        >
-                          {copiedFormId === form.id ? <Check className="size-3 mr-1" /> : <Copy className="size-3 mr-1" />}
-                          Share
-                        </Button>
-                        {form.status === "published" ? (
-                          <Button asChild size="sm" className="rounded-lg border-2 border-black bg-zinc-200 text-zinc-950 hover:bg-white shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all h-8 font-black uppercase text-[10px] tracking-wider">
-                            <Link href={`/f/${form.slug}`} target="_blank">
-                              <ExternalLink className="size-3 mr-1" />
-                              Live
-                            </Link>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                        {selectedForms.length ? (
+                          <Button
+                            className="h-9 rounded-lg border-2 border-black bg-zinc-900 px-3 text-[10px] font-black uppercase tracking-wider text-zinc-200 shadow-[2px_2px_0px_#000] hover:bg-zinc-800"
+                            disabled={bulkDeletePending}
+                            onClick={() => setSelectedFormIds([])}
+                            type="button"
+                            variant="outline"
+                          >
+                            Clear
                           </Button>
                         ) : null}
                         <Button
-                          size="sm"
-                          variant="outline"
-                          className="rounded-lg border-2 border-rose-600 bg-rose-950/40 text-rose-250 hover:bg-rose-600 hover:text-white shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all h-8 font-black uppercase text-[10px] tracking-wider"
-                          disabled={removeForm.isPending && deleteTarget?.id === form.id}
+                          className="h-10 rounded-lg border-2 border-black bg-rose-600 px-4 text-[11px] font-black uppercase tracking-wider text-white shadow-[3px_3px_0px_#000] hover:bg-rose-500 active:scale-95 transition-all disabled:opacity-60"
+                          disabled={!selectedForms.length || bulkDeletePending}
                           onClick={() => {
-                            removeForm.reset();
-                            setDeleteTarget(form);
+                            bulkRemoveForm.reset();
+                            setBulkDeleteError(null);
+                            setBulkDeleteOpen(true);
                           }}
+                          type="button"
                         >
-                          {removeForm.isPending && deleteTarget?.id === form.id ? (
-                            <Loader2 className="size-3 animate-spin" />
-                          ) : (
-                            <Trash2 className="size-3 mr-1" />
-                          )}
-                          Delete
+                          {bulkDeletePending ? <Loader2 className="size-3 animate-spin mr-1" /> : <Trash2 className="size-3 mr-1" />}
+                          Delete selected
                         </Button>
                       </div>
-                    </article>
-                  ))}
+                    </div>
+                  </div>
+
+                  <div className="divide-y-2 divide-black">
+                    {visibleForms.map((form, index) => {
+                      const isSelected = selectedFormIds.includes(form.id);
+
+                      return (
+                        <article
+                          className={`flow-dashboard-row flex flex-col gap-4 p-5 transition-all duration-200 xl:flex-row xl:items-center xl:justify-between ${isSelected ? "bg-zinc-900/70" : ""}`}
+                          key={form.id}
+                          style={{ animationDelay: `${320 + index * 55}ms` }}
+                        >
+                          <div className="flex min-w-0 items-start gap-3">
+                            <input
+                              aria-label={`Select ${form.title}`}
+                              checked={isSelected}
+                              className="mt-1 size-4 shrink-0 cursor-pointer accent-zinc-200"
+                              onChange={() => toggleFormSelection(form.id)}
+                              type="checkbox"
+                            />
+                            <div className="min-w-0">
+                              <p className="truncate font-flow-display text-lg text-zinc-100">{form.title}</p>
+                              <p className="mt-1 truncate font-mono text-xs text-zinc-400 font-bold">/f/{form.slug}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-3 xl:ml-auto">
+                            <Badge className={statusBadge(form.status)} variant="outline">
+                              {form.status}
+                            </Badge>
+                            <Badge className={visibilityBadge(form.visibility)} variant="outline">
+                              {form.visibility}
+                            </Badge>
+                            <span className="text-xs text-zinc-405 font-medium">
+                              {form.updatedAt ? new Date(form.updatedAt).toLocaleDateString() : "Not updated"}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 xl:justify-end">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className={`h-8 rounded-lg border-2 border-black shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all font-black uppercase text-[10px] tracking-wider ${isSelected ? "bg-zinc-200 text-zinc-950 hover:bg-white" : "bg-zinc-900 text-zinc-200 hover:bg-zinc-200 hover:text-zinc-950"}`}
+                              onClick={() => toggleFormSelection(form.id)}
+                              type="button"
+                            >
+                              <Check className="size-3 mr-1" />
+                              {isSelected ? "Selected" : "Select"}
+                            </Button>
+                            <Button asChild size="sm" variant="outline" className="rounded-lg border-2 border-black bg-zinc-950 text-zinc-200 hover:bg-zinc-200 hover:text-zinc-950 shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all h-8 font-black uppercase text-[10px] tracking-wider">
+                              <Link href={`/forms/${form.id}/builder`}>
+                                <Pencil className="size-3 mr-1" />
+                                Builder
+                              </Link>
+                            </Button>
+                            <Button asChild size="sm" variant="outline" className="rounded-lg border-2 border-black bg-zinc-950 text-zinc-200 hover:bg-zinc-200 hover:text-zinc-950 shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all h-8 font-black uppercase text-[10px] tracking-wider">
+                              <Link href={`/forms/${form.id}/results`}>
+                                <BarChart3 className="size-3 mr-1" />
+                                Analytics
+                              </Link>
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="rounded-lg border-2 border-black bg-zinc-950 text-zinc-200 hover:bg-zinc-200 hover:text-zinc-950 shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all h-8 font-black uppercase text-[10px] tracking-wider"
+                              onClick={() => {
+                                const url = `${window.location.origin}/f/${form.slug}`;
+                                void navigator.clipboard.writeText(url);
+                                setCopiedFormId(form.id);
+                                setTimeout(() => setCopiedFormId(null), 2000);
+                              }}
+                            >
+                              {copiedFormId === form.id ? <Check className="size-3 mr-1" /> : <Copy className="size-3 mr-1" />}
+                              Share
+                            </Button>
+                            {form.status === "published" ? (
+                              <Button asChild size="sm" className="rounded-lg border-2 border-black bg-zinc-200 text-zinc-950 hover:bg-white shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all h-8 font-black uppercase text-[10px] tracking-wider">
+                                <Link href={`/f/${form.slug}`} target="_blank">
+                                  <ExternalLink className="size-3 mr-1" />
+                                  Live
+                                </Link>
+                              </Button>
+                            ) : null}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="rounded-lg border-2 border-rose-600 bg-rose-950/40 text-rose-250 hover:bg-rose-600 hover:text-white shadow-[2px_2px_0px_#000] hover:scale-105 active:scale-95 transition-all h-8 font-black uppercase text-[10px] tracking-wider"
+                              disabled={(removeForm.isPending && deleteTarget?.id === form.id) || bulkDeletePending}
+                              onClick={() => {
+                                removeForm.reset();
+                                setDeleteTarget(form);
+                              }}
+                            >
+                              {removeForm.isPending && deleteTarget?.id === form.id ? (
+                                <Loader2 className="size-3 animate-spin" />
+                              ) : (
+                                <Trash2 className="size-3 mr-1" />
+                              )}
+                              Delete
+                            </Button>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
                 </div>
               ) : (
                 <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 p-8 text-center">
@@ -610,6 +745,69 @@ export function DashboardClient() {
             >
               {removeForm.isPending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : <Trash2 className="size-3.5 mr-1" />}
               Delete permanently
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={bulkDeleteOpen}
+        onOpenChange={(open) => {
+          if (!bulkDeletePending) setBulkDeleteOpen(open);
+        }}
+      >
+        <AlertDialogContent className="rounded-xl border-2 border-black bg-zinc-950 text-zinc-250 shadow-[6px_6px_0px_#000] max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-flow-display text-xl leading-none text-white drop-shadow-[2px_2px_0px_#000]">
+              Delete selected forms?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs leading-relaxed text-zinc-400">
+              This will permanently delete {selectedForms.length} selected form{selectedForms.length === 1 ? "" : "s"},
+              including fields, public links, responses, and analytics.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="rounded-lg border-2 border-black bg-zinc-900 p-3 shadow-[2px_2px_0px_#000]">
+            <p className="mb-2 text-[10px] font-black uppercase tracking-wider text-zinc-500">
+              Selected campaigns
+            </p>
+            <div className="space-y-1.5">
+              {selectedForms.slice(0, 4).map((form) => (
+                <p className="truncate text-xs font-semibold text-zinc-250" key={form.id}>
+                  {form.title}
+                </p>
+              ))}
+              {selectedForms.length > 4 ? (
+                <p className="text-xs font-semibold text-zinc-500">
+                  +{selectedForms.length - 4} more
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          {bulkDeleteError ? (
+            <div className="rounded-lg border-2 border-rose-600 bg-rose-950/20 p-3 text-xs text-rose-455">
+              {bulkDeleteError}
+            </div>
+          ) : null}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className="rounded-lg border-2 border-black bg-zinc-900 text-zinc-205 hover:bg-zinc-800 hover:text-white text-xs shadow-[2px_2px_0px_#000] transition-all"
+              disabled={bulkDeletePending}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-lg bg-rose-600 text-white hover:bg-rose-500 text-xs border-2 border-black shadow-[3px_3px_0px_#000] transition-all hover:scale-105 active:scale-95 font-black uppercase tracking-wider"
+              disabled={bulkDeletePending || !selectedForms.length}
+              onClick={(event) => {
+                event.preventDefault();
+                void deleteSelectedForms();
+              }}
+            >
+              {bulkDeletePending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : <Trash2 className="size-3.5 mr-1" />}
+              Delete selected
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -902,4 +1100,3 @@ function CloudSyncIcon() {
     </svg>
   );
 }
-

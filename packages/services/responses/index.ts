@@ -281,13 +281,15 @@ class ResponseService {
           .limit(1)
       : [];
 
-    await emailService.sendSubmissionNotifications({
+    void emailService.sendSubmissionNotifications({
       creatorEmail: creator?.email ?? null,
       respondentEmail: findRespondentEmail(objectValue(parsed.metadata), answersByQuestion, questions),
       formId: form.id,
       formTitle: form.title,
       formSlug: form.slug,
       responseId: response.id,
+    }).catch((error) => {
+      console.error("[email:submission:background:error]", error instanceof Error ? error.message : error);
     });
 
     return {
